@@ -1,0 +1,189 @@
+import { GoogleGenerativeAI } from '@google/generative-ai'
+
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || 'demo-key')
+
+export const generateItinerary = async (tripData) => {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+
+    const prompt = `
+Create a detailed ${tripData.days}-day travel itinerary for ${tripData.destination}.
+
+Trip Details:
+- Budget: ${tripData.budget}
+- Days: ${tripData.days}
+- Preferences: ${tripData.preferences.join(', ')}
+
+Please provide a JSON response with this exact structure:
+{
+  "destination": "${tripData.destination}",
+  "totalDays": ${tripData.days},
+  "estimatedCost": {
+    "total": 0,
+    "accommodation": 0,
+    "food": 0,
+    "activities": 0,
+    "transport": 0
+  },
+  "carbonFootprint": {
+    "total": 0,
+    "transport": 0,
+    "accommodation": 0
+  },
+  "days": [
+    {
+      "day": 1,
+      "title": "Day title",
+      "activities": [
+        {
+          "time": "09:00",
+          "name": "Activity name",
+          "description": "Brief description",
+          "duration": "2 hours",
+          "cost": 25,
+          "type": "attraction|restaurant|hotel|activity",
+          "location": "Specific address or area"
+        }
+      ]
+    }
+  ]
+}
+
+Budget guidelines:
+- Low budget: Focus on free/cheap activities, hostels, street food
+- Medium budget: Mix of paid attractions, mid-range hotels, local restaurants  
+- High budget: Premium experiences, luxury hotels, fine dining
+
+Include 4-6 activities per day with realistic timing. Provide specific place names and locations in ${tripData.destination}.
+`
+
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    const text = response.text()
+    
+    // Clean and parse JSON response
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error('Invalid AI response format')
+    }
+    
+    const itinerary = JSON.parse(jsonMatch[0])
+    
+    // Validate and enhance the response
+    return validateAndEnhanceItinerary(itinerary, tripData)
+    
+  } catch (error) {
+    console.error('Error generating itinerary:', error)
+    
+    // Fallback itinerary
+    return generateFallbackItinerary(tripData)
+  }
+}
+
+const validateAndEnhanceItinerary = (itinerary, tripData) => {
+  // Ensure all required fields exist
+  const enhanced = {
+    destination: itinerary.destination || tripData.destination,
+    totalDays: itinerary.totalDays || tripData.days,
+    estimatedCost: itinerary.estimatedCost || {
+      total: calculateBudgetEstimate(tripData.budget, tripData.days),
+      accommodation: 0,
+      food: 0,
+      activities: 0,
+      transport: 0
+    },
+    carbonFootprint: itinerary.carbonFootprint || {
+      total: calculateCarbonFootprint(tripData.destination, tripData.days),
+      transport: 0,
+      accommodation: 0
+    },
+    days: itinerary.days || []
+  }
+
+  // Ensure we have the right number of days
+  while (enhanced.days.length < tripData.days) {
+    enhanced.days.push({
+      day: enhanced.days.length + 1,
+      title: `Day ${enhanced.days.length + 1} - Explore ${tripData.destination}`,
+      activities: [
+        {
+          time: "09:00",
+          name: "Morning Exploration",
+          description: "Discover local attractions and culture",
+          duration: "3 hours",
+          cost: 30,
+          type: "activity",
+          location: tripData.destination
+        }
+      ]
+    })
+  }
+
+  return enhanced
+}
+
+const generateFallbackItinerary = (tripData) => {
+  const budgetMultiplier = tripData.budget === 'low' ? 0.5 : tripData.budget === 'high' ? 2 : 1
+  const dailyBudget = 100 * budgetMultiplier
+
+  return {
+    destination: tripData.destination,
+    totalDays: tripData.days,
+    estimatedCost: {
+      total: dailyBudget * tripData.days,
+      accommodation: dailyBudget * 0.4 * tripData.days,
+      food: dailyBudget * 0.3 * tripData.days,
+      activities: dailyBudget * 0.2 * tripData.days,
+      transport: dailyBudget * 0.1 * tripData.days
+    },
+    carbonFootprint: {
+      total: calculateCarbonFootprint(tripData.destination, tripData.days),
+      transport: 50 * tripData.days,
+      accommodation: 20 * tripData.days
+    },
+    days: Array.from({ length: tripData.days }, (_, index) => ({
+      day: index + 1,
+      title: `Day ${index + 1} - Explore ${tripData.destination}`,
+      activities: [
+        {
+          time: "09:00",
+          name: "Morning Adventure",
+          description: `Start your day exploring the best of ${tripData.destination}`,
+          duration: "3 hours",
+          cost: 25,
+          type: "activity",
+          location: tripData.destination
+        },
+        {
+          time: "13:00",
+          name: "Local Lunch",
+          description: "Experience authentic local cuisine",
+          duration: "1 hour",
+          cost: 20,
+          type: "restaurant",
+          location: tripData.destination
+        },
+        {
+          time: "15:00",
+          name: "Cultural Experience",
+          description: "Immerse yourself in local culture and history",
+          duration: "2 hours",
+          cost: 15,
+          type: "attraction",
+          location: tripData.destination
+        }
+      ]
+    }))
+  }
+}
+
+const calculateBudgetEstimate = (budget, days) => {
+  const multipliers = { low: 50, medium: 150, high: 300 }
+  return (multipliers[budget] || 150) * days
+}
+
+const calculateCarbonFootprint = (destination, days) => {
+  // Simple calculation based on destination and duration
+  const baseFootprint = 50 // kg CO2 per day
+  return baseFootprint * days
+}
