@@ -1,4 +1,5 @@
-import { Plane, Heart } from 'lucide-react'
+import { Plane, Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const Footer = () => {
   return (
@@ -18,16 +19,30 @@ const Footer = () => {
             <p className="text-sm text-gray-600">
               AI-powered travel planning made simple. Create personalized itineraries with intelligent recommendations.
             </p>
+            <div className="flex space-x-4">
+              <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
+                <Linkedin className="h-5 w-5" />
+              </a>
+            </div>
           </div>
 
           {/* Product */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Product</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Features</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">API</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Mobile App</a></li>
+              <li><Link to="/explore" className="hover:text-blue-600 transition-colors">Explore Destinations</Link></li>
+              <li><Link to="/pricing" className="hover:text-blue-600 transition-colors">Pricing</Link></li>
+              <li><Link to="/community" className="hover:text-blue-600 transition-colors">Community</Link></li>
+              <li><Link to="/blog" className="hover:text-blue-600 transition-colors">Travel Blog</Link></li>
             </ul>
           </div>
 
@@ -35,10 +50,10 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="#" className="hover:text-blue-600 transition-colors">About</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Blog</a></li>
+              <li><Link to="/about" className="hover:text-blue-600 transition-colors">About Us</Link></li>
+              <li><Link to="/blog" className="hover:text-blue-600 transition-colors">Blog</Link></li>
+              <li><Link to="/contact" className="hover:text-blue-600 transition-colors">Contact</Link></li>
               <li><a href="#" className="hover:text-blue-600 transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Contact</a></li>
             </ul>
           </div>
 
@@ -46,11 +61,29 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Support</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Status</a></li>
+              <li><Link to="/help" className="hover:text-blue-600 transition-colors">Help Center</Link></li>
+              <li><Link to="/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-blue-600 transition-colors">Terms of Service</Link></li>
+              <li><Link to="/contact" className="hover:text-blue-600 transition-colors">Contact Support</Link></li>
             </ul>
+          </div>
+        </div>
+
+        {/* Contact Info */}
+        <div className="border-t mt-8 pt-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <Mail className="h-4 w-4" />
+              <span>support@tripcraft.com</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <Phone className="h-4 w-4" />
+              <span>+1 (555) 123-4567</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <MapPin className="h-4 w-4" />
+              <span>San Francisco, CA</span>
+            </div>
           </div>
         </div>
 

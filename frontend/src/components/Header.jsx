@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { motion } from 'framer-motion'
-import { Plane, Menu, X, User, LogOut, Map, Home, Plus } from 'lucide-react'
+import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle } from 'lucide-react'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -20,6 +20,8 @@ const Header = () => {
 
   const navigation = [
     { name: 'Home', href: '/', icon: Home },
+    { name: 'Explore', href: '/explore', icon: Compass },
+    { name: 'Community', href: '/community', icon: Users },
     { name: 'Dashboard', href: '/dashboard', icon: Map, auth: true },
     { name: 'Create Trip', href: '/create-trip', icon: Plus, auth: true },
   ]
@@ -102,6 +104,12 @@ const Header = () => {
                     <Link to="/dashboard" className="flex items-center">
                       <Map className="mr-2 h-4 w-4" />
                       My Trips
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/help" className="flex items-center">
+                      <HelpCircle className="mr-2 h-4 w-4" />
+                      Help & Support
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
