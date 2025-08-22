@@ -1,66 +1,50 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    user: null,
+    token: null,
+  });
 
-  useEffect(() => {
-    checkAuthStatus()
-  }, [])
-
+  // Check auth status on mount
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('/api/auth/status', {
-        credentials: 'include'
-      })
-      const data = await response.json()
-      
-      if (data.isAuthenticated) {
-        setUser(data.user)
-        setIsAuthenticated(true)
-      } else {
-        setUser(null)
-        setIsAuthenticated(false)
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setAuthState({ isAuthenticated: false, user: null, token: null });
+        return;
       }
+
+      // Call backend to validate token
+      const res = await fetch("http://localhost:5000/api/auth/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        setAuthState({ isAuthenticated: false, user: null, token: null });
+        return;
+      }
+
+      const userData = await res.json();
+      setAuthState({ isAuthenticated: true, user: userData, token });
     } catch (error) {
-      console.error('Auth status check failed:', error)
-      setUser(null)
-      setIsAuthenticated(false)
-    } finally {
-      setIsLoading(false)
+      console.error("Auth status check failed:", error);
+      setAuthState({ isAuthenticated: false, user: null, token: null });
     }
-  }
+  };
 
-  const loginWithRedirect = () => {
-    window.location.href = '/auth/login'
-  }
-
-  const logout = () => {
-    window.location.href = '/auth/logout'
-  }
-
-  const value = {
-    user,
-    isAuthenticated,
-    isLoading,
-    loginWithRedirect,
-    logout
-  }
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ authState, setAuthState, checkAuthStatus }}>
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};

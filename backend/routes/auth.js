@@ -105,6 +105,24 @@ router.post('/login', [
   }
 })
 
+// Auth status check
+router.get('/status', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password')
+    if (!user) {
+      return res.json({ isAuthenticated: false })
+    }
+
+    res.json({
+      isAuthenticated: true,
+      user
+    })
+  } catch (error) {
+    console.error('Auth status error:', error)
+    res.status(500).json({ message: 'Server error checking auth status' })
+  }
+})
+
 // Get user profile
 router.get('/profile', auth, async (req, res) => {
   try {

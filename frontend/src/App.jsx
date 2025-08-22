@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext'
+import Login from "./pages/Login"; // 
 import { TripProvider } from './context/TripContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -48,6 +49,7 @@ function AppContent() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/auth/login" element={<Login />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/community" element={<Community />} />
             <Route path="/about" element={<About />} />
@@ -58,21 +60,21 @@ function AppContent() {
             <Route path="/help" element={<Help />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route 
-              path="/dashboard" 
-              element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />} 
+            <Route
+              path="/dashboard"
+              element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
             />
-            <Route 
-              path="/create-trip" 
-              element={isAuthenticated ? <CreateTrip /> : <Navigate to="/" />} 
+            <Route
+              path="/create-trip"
+              element={isAuthenticated ? <CreateTrip /> : <Navigate to="/" />}
             />
-            <Route 
-              path="/trip/:id" 
-              element={isAuthenticated ? <TripDetail /> : <Navigate to="/" />} 
+            <Route
+              path="/trip/:id"
+              element={isAuthenticated ? <TripDetail /> : <Navigate to="/" />}
             />
-            <Route 
-              path="/profile" 
-              element={isAuthenticated ? <Profile /> : <Navigate to="/" />} 
+            <Route
+              path="/profile"
+              element={isAuthenticated ? <Profile /> : <Navigate to="/" />}
             />
           </Routes>
         </main>

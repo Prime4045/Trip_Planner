@@ -16,7 +16,12 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-      }
-    }
-  }
+      },
+    },
+    hmr: {
+      protocol: 'ws',   // use websocket
+      host: 'localhost', // force host
+      port: 3000,        // same as dev server port
+    },
+  },
 })
