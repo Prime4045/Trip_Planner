@@ -1,16 +1,17 @@
 const express = require('express')
 const { body, validationResult } = require('express-validator')
+const { requiresAuth } = require('express-openid-connect')
 const Trip = require('../models/Trip')
-const auth = require('../middleware/auth')
+const User = require('../models/User')
 const { generateItinerary } = require('../services/geminiService')
 const { enrichWithPlaces } = require('../services/placesService')
 
 const router = express.Router()
 
 // Get all user trips
-router.get('/', auth, async (req, res) => {
+router.get('/', requiresAuth(), async (req, res) => {
   try {
-    const trips = await Trip.find({ userId: req.userId })
+    const trips = await Trip.find({ userId: req.user._id })
       .sort({ createdAt: -1 })
       .select('-__v')
 
@@ -22,11 +23,11 @@ router.get('/', auth, async (req, res) => {
 })
 
 // Get single trip
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', requiresAuth(), async (req, res) => {
   try {
     const trip = await Trip.findOne({ 
       _id: req.params.id, 
-      userId: req.userId 
+      userId: req.user._id 
     }).select('-__v')
 
     if (!trip) {
@@ -41,7 +42,7 @@ router.get('/:id', auth, async (req, res) => {
 })
 
 // Create new trip
-router.post('/', auth, [
+router.post('/', requiresAuth(), [
   body('destination').trim().isLength({ min: 2 }).withMessage('Destination is required'),
   body('days').isInt({ min: 1, max: 30 }).withMessage('Days must be between 1 and 30'),
   body('budget').isIn(['low', 'medium', 'high']).withMessage('Invalid budget option'),
@@ -68,7 +69,7 @@ router.post('/', auth, [
 
     // Create trip
     const trip = new Trip({
-      userId: req.userId,
+      userId: req.user._id,
       destination,
       days,
       budget,
@@ -77,6 +78,15 @@ router.post('/', auth, [
     })
 
     await trip.save()
+
+    // Update user stats
+    await User.findByIdAndUpdate(req.user._id, {
+      $inc: { 
+        'stats.totalTrips': 1,
+        'stats.totalDays': days,
+        'stats.totalSpent': enrichedItinerary.estimatedCost?.total || 0
+      }
+    })
 
     res.status(201).json(trip)
   } catch (error) {
@@ -89,7 +99,7 @@ router.post('/', auth, [
 })
 
 // Update trip
-router.put('/:id', auth, [
+router.put('/:id', requiresAuth(), [
   body('destination').optional().trim().isLength({ min: 2 }),
   body('days').optional().isInt({ min: 1, max: 30 }),
   body('budget').optional().isIn(['low', 'medium', 'high']),
@@ -102,8 +112,8 @@ router.put('/:id', auth, [
     }
 
     const trip = await Trip.findOneAndUpdate(
-      { _id: req.params.id, userId: req.userId },
-      { $set: req.body, updatedAt: new Date() },
+      { _id: req.params.id, userId: req.user._id },
+      { $set: { ...req.body, updatedAt: new Date() } },
       { new: true }
     )
 
@@ -119,16 +129,25 @@ router.put('/:id', auth, [
 })
 
 // Delete trip
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', requiresAuth(), async (req, res) => {
   try {
     const trip = await Trip.findOneAndDelete({ 
       _id: req.params.id, 
-      userId: req.userId 
+      userId: req.user._id 
     })
 
     if (!trip) {
       return res.status(404).json({ message: 'Trip not found' })
     }
+
+    // Update user stats
+    await User.findByIdAndUpdate(req.user._id, {
+      $inc: { 
+        'stats.totalTrips': -1,
+        'stats.totalDays': -trip.days,
+        'stats.totalSpent': -(trip.itinerary?.estimatedCost?.total || 0)
+      }
+    })
 
     res.json({ message: 'Trip deleted successfully' })
   } catch (error) {
@@ -138,10 +157,10 @@ router.delete('/:id', auth, async (req, res) => {
 })
 
 // Get trip statistics
-router.get('/stats/summary', auth, async (req, res) => {
+router.get('/stats/summary', requiresAuth(), async (req, res) => {
   try {
     const stats = await Trip.aggregate([
-      { $match: { userId: req.userId } },
+      { $match: { userId: req.user._id } },
       {
         $group: {
           _id: null,

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useAuth0 } from '@auth0/auth0-react'
+import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import { 
   Plane, 
@@ -19,7 +19,7 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 
 const Home = () => {
-  const { loginWithRedirect, isAuthenticated } = useAuth0()
+  const { loginWithRedirect, isAuthenticated } = useAuth()
 
   const features = [
     {

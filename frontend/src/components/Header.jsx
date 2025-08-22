@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth0 } from '@auth0/auth0-react'
+import { useAuth } from '../context/AuthContext'
 import { motion } from 'framer-motion'
 import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle } from 'lucide-react'
 import { Button } from './ui/button'
@@ -14,7 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const Header = () => {
-  const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth0()
+  const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -114,7 +114,7 @@ const Header = () => {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                    onClick={() => logout()}
                     className="flex items-center text-red-600"
                   >
                     <LogOut className="mr-2 h-4 w-4" />

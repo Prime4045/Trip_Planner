@@ -1,6 +1,11 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
+  auth0Id: {
+    type: String,
+    required: true,
+    unique: true
+  },
   name: {
     type: String,
     required: true,
@@ -14,11 +19,6 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6
-  },
   avatar: {
     type: String,
     default: ''
@@ -30,7 +30,12 @@ const userSchema = new mongoose.Schema({
       enum: ['budget', 'comfort', 'luxury'],
       default: 'comfort'
     },
-    interests: [String]
+    interests: [String],
+    budgetRange: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium'
+    }
   },
   stats: {
     totalTrips: {
@@ -44,6 +49,10 @@ const userSchema = new mongoose.Schema({
     totalSpent: {
       type: Number,
       default: 0
+    },
+    countriesVisited: {
+      type: Number,
+      default: 0
     }
   },
   lastLogin: {
@@ -55,6 +64,7 @@ const userSchema = new mongoose.Schema({
 })
 
 // Index for faster queries
+userSchema.index({ auth0Id: 1 })
 userSchema.index({ email: 1 })
 
 module.exports = mongoose.model('User', userSchema)

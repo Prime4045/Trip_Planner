@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth0 } from '@auth0/auth0-react'
+import { AuthProvider } from './context/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext'
 import { TripProvider } from './context/TripContext'
 import Header from './components/Header'
@@ -23,55 +23,63 @@ import LoadingSpinner from './components/LoadingSpinner'
 import { Toaster } from './components/ui/toaster'
 
 function App() {
-  const { isLoading, isAuthenticated } = useAuth0()
+  return (
+    <AuthProvider>
+      <FirebaseProvider>
+        <TripProvider>
+          <AppContent />
+        </TripProvider>
+      </FirebaseProvider>
+    </AuthProvider>
+  )
+}
+
+function AppContent() {
+  const { isLoading, isAuthenticated } = useAuth()
 
   if (isLoading) {
     return <LoadingSpinner />
   }
 
   return (
-    <FirebaseProvider>
-      <TripProvider>
-        <Router>
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-            <Header />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/help" element={<Help />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route 
-                  path="/dashboard" 
-                  element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />} 
-                />
-                <Route 
-                  path="/create-trip" 
-                  element={isAuthenticated ? <CreateTrip /> : <Navigate to="/" />} 
-                />
-                <Route 
-                  path="/trip/:id" 
-                  element={isAuthenticated ? <TripDetail /> : <Navigate to="/" />} 
-                />
-                <Route 
-                  path="/profile" 
-                  element={isAuthenticated ? <Profile /> : <Navigate to="/" />} 
-                />
-              </Routes>
-            </main>
-            <Footer />
-            <Toaster />
-          </div>
-        </Router>
-      </TripProvider>
-    </FirebaseProvider>
+    <Router>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route 
+              path="/dashboard" 
+              element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />} 
+            />
+            <Route 
+              path="/create-trip" 
+              element={isAuthenticated ? <CreateTrip /> : <Navigate to="/" />} 
+            />
+            <Route 
+              path="/trip/:id" 
+              element={isAuthenticated ? <TripDetail /> : <Navigate to="/" />} 
+            />
+            <Route 
+              path="/profile" 
+              element={isAuthenticated ? <Profile /> : <Navigate to="/" />} 
+            />
+          </Routes>
+        </main>
+        <Footer />
+        <Toaster />
+      </div>
+    </Router>
   )
 }
 
