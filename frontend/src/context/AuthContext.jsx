@@ -1,50 +1,78 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from 'react'
 
-const AuthContext = createContext();
+const AuthContext = createContext()
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
 
 export const AuthProvider = ({ children }) => {
-  const [authState, setAuthState] = useState({
-    isAuthenticated: false,
-    user: null,
-    token: null,
-  });
-
-  // Check auth status on mount
-  const checkAuthStatus = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setAuthState({ isAuthenticated: false, user: null, token: null });
-        return;
-      }
-
-      // Call backend to validate token
-      const res = await fetch("http://localhost:5000/api/auth/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        setAuthState({ isAuthenticated: false, user: null, token: null });
-        return;
-      }
-
-      const userData = await res.json();
-      setAuthState({ isAuthenticated: true, user: userData, token });
-    } catch (error) {
-      console.error("Auth status check failed:", error);
-      setAuthState({ isAuthenticated: false, user: null, token: null });
-    }
-  };
+  const [user, setUser] = useState(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    checkAuthStatus();
-  }, []);
+    checkAuthStatus()
+  }, [])
+
+  const checkAuthStatus = async () => {
+    try {
+      // Call your backend's Auth0 status endpoint
+      const response = await fetch('http://localhost:5000/api/auth/status', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch auth status')
+      }
+      
+      const data = await response.json()
+      
+      if (data.isAuthenticated) {
+        setUser(data.user)
+        setIsAuthenticated(true)
+      } else {
+        setUser(null)
+        setIsAuthenticated(false)
+      }
+    } catch (error) {
+      console.error('Auth status check failed:', error)
+      setUser(null)
+      setIsAuthenticated(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Redirect to backend Auth0 login
+  const loginWithRedirect = () => {
+    window.location.href = 'http://localhost:5000/auth/login'
+  }
+
+  // Redirect to backend Auth0 logout
+  const logout = () => {
+    window.location.href = 'http://localhost:5000/auth/logout'
+  }
+
+  const value = {
+    user,
+    isAuthenticated,
+    isLoading,
+    loginWithRedirect,
+    logout,
+    checkAuthStatus
+  }
 
   return (
-    <AuthContext.Provider value={{ authState, setAuthState, checkAuthStatus }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}

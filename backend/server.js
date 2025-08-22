@@ -171,13 +171,13 @@ app.get('/api/health', (req, res) => {
 // Frontend auth redirect endpoints
 app.get('/auth/login', (req, res) => {
   res.oidc.login({
-    returnTo: process.env.FRONTEND_URL + '/dashboard'
+    returnTo: process.env.FRONTEND_URL || 'http://localhost:3000'
   })
 })
 
 app.get('/auth/logout', (req, res) => {
   res.oidc.logout({
-    returnTo: process.env.FRONTEND_URL
+    returnTo: process.env.FRONTEND_URL || 'http://localhost:3000'
   })
 })
 
