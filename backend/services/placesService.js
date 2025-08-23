@@ -5,7 +5,8 @@ const PLACES_BASE_URL = 'https://maps.googleapis.com/maps/api/place'
 
 const searchPlaces = async (query, location, type = '') => {
   try {
-    if (GOOGLE_PLACES_API_KEY === 'demo-key') {
+    if (!GOOGLE_PLACES_API_KEY || GOOGLE_PLACES_API_KEY === 'demo-key') {
+      console.log('Using mock places data - Google Places API key not configured')
       return generateMockPlaces(query, location)
     }
 
@@ -35,7 +36,8 @@ const searchPlaces = async (query, location, type = '') => {
 
 const getPlaceDetails = async (placeId) => {
   try {
-    if (GOOGLE_PLACES_API_KEY === 'demo-key' || !placeId) {
+    if (!GOOGLE_PLACES_API_KEY || GOOGLE_PLACES_API_KEY === 'demo-key' || !placeId) {
+      console.log('Using mock place details - Google Places API key not configured')
       return generateMockPlaceDetails(placeId)
     }
 
@@ -60,7 +62,8 @@ const getPlaceDetails = async (placeId) => {
 
 const getPlacePhotos = async (placeId) => {
   try {
-    if (GOOGLE_PLACES_API_KEY === 'demo-key' || !placeId) {
+    if (!GOOGLE_PLACES_API_KEY || GOOGLE_PLACES_API_KEY === 'demo-key' || !placeId) {
+      console.log('Using mock photos - Google Places API key not configured')
       return generateMockPhotos()
     }
 

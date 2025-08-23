@@ -37,8 +37,8 @@ const config = {
   clientID: process.env.AUTH0_CLIENT_ID,
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
   routes: {
-    login: '/auth/login',
-    logout: '/auth/logout',
+    login: false,  // We'll handle this manually
+    logout: false, // We'll handle this manually
     callback: '/auth/callback'
   }
 }
@@ -171,7 +171,7 @@ app.get('/api/health', (req, res) => {
 // Frontend auth redirect endpoints
 app.get('/auth/login', (req, res) => {
   res.oidc.login({
-    returnTo: process.env.FRONTEND_URL || 'http://localhost:3000'
+    returnTo: (process.env.FRONTEND_URL || 'http://localhost:3000') + '/dashboard'
   })
 })
 
@@ -179,6 +179,12 @@ app.get('/auth/logout', (req, res) => {
   res.oidc.logout({
     returnTo: process.env.FRONTEND_URL || 'http://localhost:3000'
   })
+})
+
+// Handle successful login callback
+app.get('/auth/callback', (req, res) => {
+  // User is now authenticated, redirect to frontend dashboard
+  res.redirect((process.env.FRONTEND_URL || 'http://localhost:3000') + '/dashboard')
 })
 
 // Error handling middleware

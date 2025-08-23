@@ -4,6 +4,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'demo-key')
 
 const generateItinerary = async (tripData) => {
   try {
+    // Check if API key is available
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'demo-key') {
+      console.log('Using fallback itinerary - Gemini API key not configured')
+      return generateFallbackItinerary(tripData)
+    }
+
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
@@ -65,16 +71,23 @@ Make sure all costs are realistic and add up correctly in the estimatedCost sect
     // Clean and parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
+      console.log('AI response format invalid, using fallback')
       throw new Error('Invalid AI response format')
     }
     
-    const itinerary = JSON.parse(jsonMatch[0])
+    let itinerary
+    try {
+      itinerary = JSON.parse(jsonMatch[0])
+    } catch (parseError) {
+      console.log('JSON parse failed, using fallback')
+      throw new Error('Failed to parse AI response')
+    }
     
     // Validate and enhance the response
     return validateAndEnhanceItinerary(itinerary, tripData)
     
   } catch (error) {
-    console.error('Error generating itinerary:', error)
+    console.error('Error generating itinerary:', error.message)
     
     // Fallback itinerary
     return generateFallbackItinerary(tripData)
@@ -205,9 +218,6 @@ const calculateCarbonFootprint = (destination, days) => {
 
 const getDestinationCarbonMultiplier = (destination) => {
   // Simple multiplier based on typical travel distance and local transport
-  const lowCarbon = ['local', 'nearby', 'domestic']
-  const highCarbon = ['international', 'far', 'overseas']
-  
   // This is a simplified calculation - in reality, you'd use more sophisticated data
   return 1.2 // Default multiplier
 }
