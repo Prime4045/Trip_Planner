@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext'
 import Login from "./pages/Login";
-import Login from "./pages/Login"; // 
 import { TripProvider } from './context/TripContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -50,7 +49,6 @@ function AppContent() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/login" element={<Login />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/community" element={<Community />} />
