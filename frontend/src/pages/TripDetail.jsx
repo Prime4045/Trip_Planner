@@ -133,7 +133,7 @@ const TripDetail = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Estimated Cost</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${currentTrip.itinerary?.estimatedCost?.total || 'N/A'}
+                    ₹{currentTrip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -255,7 +255,7 @@ const TripDetail = () => {
                                         </span>
                                         <span className="flex items-center">
                                           <DollarSign className="h-4 w-4 mr-1" />
-                                          ${activity.cost}
+                                          ₹{activity.cost}
                                         </span>
                                       </div>
                                     </div>

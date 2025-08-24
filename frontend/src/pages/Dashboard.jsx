@@ -208,7 +208,7 @@ const Dashboard = () => {
                         
                         <div className="flex items-center text-sm text-gray-600">
                           <DollarSign className="h-4 w-4 mr-2" />
-                          Est. ${trip.itinerary?.estimatedCost?.total || 'N/A'}
+                          Est. ₹{trip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
                         </div>
 
                         <div className="flex flex-wrap gap-1 mt-3">
