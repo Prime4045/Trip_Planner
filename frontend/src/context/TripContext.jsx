@@ -67,26 +67,34 @@ export const TripProvider = ({ children }) => {
 
     setGenerating(true)
     try {
-      // Generate AI itinerary
-      const aiItinerary = await generateItinerary(tripData)
-      
-      // Enrich with Google Places data
-      const enrichedItinerary = await enrichItineraryWithPlaces(aiItinerary)
-
-      // Save to Firestore
+      // Save trip to Firestore with user data
       const tripDoc = {
         userId: user.sub,
         destination: tripData.destination,
         days: tripData.days,
         budget: tripData.budget,
         preferences: tripData.preferences,
-        itinerary: enrichedItinerary,
+        itinerary: null, // Will be populated by backend
         createdAt: new Date(),
         updatedAt: new Date()
       }
 
-      const docRef = await addDoc(collection(db, 'trips'), tripDoc)
-      const newTrip = { id: docRef.id, ...tripDoc }
+      // Call backend to create trip with AI generation
+      const response = await fetch('http://localhost:5000/api/trips', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(tripData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to create trip')
+      }
+
+      const newTrip = await response.json()
       
       setTrips(prev => [newTrip, ...prev])
       setCurrentTrip(newTrip)

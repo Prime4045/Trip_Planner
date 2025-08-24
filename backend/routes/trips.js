@@ -4,7 +4,6 @@ const { requiresAuth } = require('express-openid-connect')
 const Trip = require('../models/Trip')
 const User = require('../models/User')
 const { generateItinerary } = require('../services/geminiService')
-const { enrichWithPlaces } = require('../services/placesService')
 
 const router = express.Router()
 
@@ -64,8 +63,8 @@ router.post('/', requiresAuth(), [
       preferences
     })
 
-    // Enrich with Google Places data
-    const enrichedItinerary = await enrichWithPlaces(aiItinerary)
+    // For now, use the AI itinerary directly since Google Places API is not available
+    const enrichedItinerary = aiItinerary
 
     // Create trip
     const trip = new Trip({
@@ -74,7 +73,7 @@ router.post('/', requiresAuth(), [
       days,
       budget,
       preferences,
-      itinerary: enrichedItinerary
+      itinerary: aiItinerary
     })
 
     await trip.save()
@@ -91,6 +90,7 @@ router.post('/', requiresAuth(), [
     res.status(201).json(trip)
   } catch (error) {
     console.error('Create trip error:', error)
+    console.error('Error details:', error.message)
     res.status(500).json({ 
       message: 'Server error creating trip',
       error: process.env.NODE_ENV === 'development' ? error.message : {}

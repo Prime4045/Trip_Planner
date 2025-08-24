@@ -37,15 +37,15 @@ const CreateTrip = () => {
   })
 
   const budgetOptions = [
-    { value: 'low', label: 'Budget-Friendly ($50-100/day)', icon: '💰' },
-    { value: 'medium', label: 'Mid-Range ($100-300/day)', icon: '💳' },
-    { value: 'high', label: 'Luxury ($300+/day)', icon: '💎' }
+    { value: 'low', label: 'Budget-Friendly (₹2000-4000/day)', icon: '💰' },
+    { value: 'medium', label: 'Mid-Range (₹4000-12000/day)', icon: '💳' },
+    { value: 'high', label: 'Luxury (₹12000+/day)', icon: '💎' }
   ]
 
   const preferenceOptions = [
-    'Adventure', 'Cultural', 'Relaxing', 'Nightlife', 'Food & Dining',
-    'Nature', 'History', 'Shopping', 'Photography', 'Beach',
-    'Mountains', 'Museums', 'Local Experiences', 'Wellness'
+    'Adventure', 'Cultural Heritage', 'Spiritual', 'Food & Cuisine', 'Nature & Wildlife',
+    'History & Monuments', 'Shopping', 'Photography', 'Hill Stations', 'Beaches',
+    'Mountains', 'Museums', 'Local Experiences', 'Wellness & Ayurveda', 'Festivals'
   ]
 
   const handlePreferenceToggle = (preference) => {
@@ -142,7 +142,7 @@ const CreateTrip = () => {
                   </Label>
                   <Input
                     id="destination"
-                    placeholder="e.g., Paris, Tokyo, New York"
+                    placeholder="e.g., Delhi, Mumbai, Goa, Rajasthan"
                     value={formData.destination}
                     onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
                     className="text-lg"

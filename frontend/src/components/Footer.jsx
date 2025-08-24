@@ -17,7 +17,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-sm text-gray-600">
-              AI-powered travel planning made simple. Create personalized itineraries with intelligent recommendations.
+              AI-powered travel planning for incredible India. Discover amazing destinations across the country with personalized itineraries.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-blue-600 transition-colors">
@@ -74,15 +74,15 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Mail className="h-4 w-4" />
-              <span>support@tripcraft.com</span>
+              <span>support@tripcraft.in</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Phone className="h-4 w-4" />
-              <span>+1 (555) 123-4567</span>
+              <span>+91 98765 43210</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <MapPin className="h-4 w-4" />
-              <span>San Francisco, CA</span>
+              <span>Mumbai, Maharashtra, India</span>
             </div>
           </div>
         </div>
@@ -92,7 +92,7 @@ const Footer = () => {
             © 2025 TripCraft. All rights reserved.
           </p>
           <p className="text-sm text-gray-600 flex items-center">
-            Made with <Heart className="h-4 w-4 text-red-500 mx-1" /> for travelers
+            Made with <Heart className="h-4 w-4 text-red-500 mx-1" /> for Indian travelers
           </p>
         </div>
       </div>

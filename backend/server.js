@@ -99,6 +99,7 @@ app.use(syncUserToDatabase)
 // Auth status endpoint
 app.get('/api/auth/status', (req, res) => {
   if (req.oidc.isAuthenticated()) {
+    console.log('User authenticated:', req.user)
     res.json({
       isAuthenticated: true,
       user: {
@@ -108,10 +109,12 @@ app.get('/api/auth/status', (req, res) => {
         email: req.user.email,
         avatar: req.user.avatar,
         createdAt: req.user.createdAt,
-        lastLogin: req.user.lastLogin
+        lastLogin: req.user.lastLogin,
+        preferences: req.user.preferences || {}
       }
     })
   } else {
+    console.log('User not authenticated')
     res.json({ isAuthenticated: false })
   }
 })
