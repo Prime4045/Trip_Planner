@@ -10,6 +10,8 @@ const generateItinerary = async (tripData) => {
       return generateFallbackItinerary(tripData)
     }
 
+    console.log('Generating itinerary with Gemini AI for:', tripData.destination)
+    
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
@@ -67,24 +69,29 @@ Budget guidelines (in Indian Rupees):
 Include 4-6 activities per day with realistic timing. Provide specific place names and locations in ${tripData.destination}, India.
 Make sure all costs are realistic in Indian Rupees and add up correctly in the estimatedCost section.
 Focus on Indian culture, heritage sites, local cuisine, and authentic experiences.
+
+IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional text.
 `
 
+    // Fixed API call - no extra await
     const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = response.text()
+    const text = result.response.text()
+    
+    console.log('Gemini API response received, length:', text.length)
     
     // Clean and parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      console.log('AI response format invalid, using fallback')
+      console.log('AI response format invalid, using fallback. Response:', text.substring(0, 200))
       return generateFallbackItinerary(tripData)
     }
     
     let itinerary
     try {
       itinerary = JSON.parse(jsonMatch[0])
+      console.log('Successfully parsed Gemini response')
     } catch (parseError) {
-      console.log('JSON parse failed, using fallback')
+      console.log('JSON parse failed, using fallback. Error:', parseError.message)
       return generateFallbackItinerary(tripData)
     }
     
@@ -93,6 +100,7 @@ Focus on Indian culture, heritage sites, local cuisine, and authentic experience
     
   } catch (error) {
     console.error('Error generating itinerary:', error.message)
+    console.error('Full error:', error)
     
     // Fallback itinerary
     return generateFallbackItinerary(tripData)
@@ -100,6 +108,8 @@ Focus on Indian culture, heritage sites, local cuisine, and authentic experience
 }
 
 const validateAndEnhanceItinerary = (itinerary, tripData) => {
+  console.log('Validating and enhancing itinerary')
+  
   // Ensure all required fields exist
   const enhanced = {
     destination: itinerary.destination || tripData.destination,
@@ -157,6 +167,8 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
 }
 
 const generateFallbackItinerary = (tripData) => {
+  console.log('Generating fallback itinerary for:', tripData.destination)
+  
   const budgetMultiplier = tripData.budget === 'low' ? 0.5 : tripData.budget === 'high' ? 3 : 1
   const dailyBudget = 3000 * budgetMultiplier // Base budget in INR
 

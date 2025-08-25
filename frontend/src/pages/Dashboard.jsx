@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useAuth0 } from '@auth0/auth0-react'
+import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
 import { 
   Plus, 
@@ -19,7 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 const Dashboard = () => {
-  const { user } = useAuth0()
+  const { user } = useAuth()
   const { trips, loading, deleteTrip, fetchUserTrips } = useTrip()
 
   useEffect(() => {
@@ -27,7 +27,9 @@ const Dashboard = () => {
   }, [])
 
   const formatDate = (date) => {
-    return new Date(date.seconds * 1000).toLocaleDateString('en-US', {
+    // Handle both Firebase timestamp and regular date
+    const dateObj = date?.seconds ? new Date(date.seconds * 1000) : new Date(date)
+    return dateObj.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -59,7 +61,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={user?.picture} alt={user?.name} />
+                <AvatarImage src={user?.avatar || user?.picture} alt={user?.name} />
                 <AvatarFallback className="text-lg">
                   {user?.name?.charAt(0)?.toUpperCase()}
                 </AvatarFallback>
@@ -175,7 +177,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {trips.map((trip, index) => (
                 <motion.div
-                  key={trip.id}
+                  key={trip._id || trip.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
@@ -191,7 +193,7 @@ const Dashboard = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteTrip(trip.id)}
+                          onClick={() => deleteTrip(trip._id || trip.id)}
                           className="text-white hover:bg-white/20"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -203,7 +205,7 @@ const Dashboard = () => {
                       <div className="space-y-3">
                         <div className="flex items-center text-sm text-gray-600">
                           <Calendar className="h-4 w-4 mr-2" />
-                          Created {formatDate(trip.createdAt)}
+                          Created {formatDate(trip.createdAt || trip.updatedAt)}
                         </div>
                         
                         <div className="flex items-center text-sm text-gray-600">
@@ -230,7 +232,7 @@ const Dashboard = () => {
 
                       <div className="flex gap-2 mt-6">
                         <Button asChild className="flex-1">
-                          <Link to={`/trip/${trip.id}`} className="flex items-center justify-center">
+                          <Link to={`/trip/${trip._id || trip.id}`} className="flex items-center justify-center">
                             <ExternalLink className="mr-2 h-4 w-4" />
                             View Trip
                           </Link>

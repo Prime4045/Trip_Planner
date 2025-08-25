@@ -10,6 +10,7 @@ const router = express.Router()
 // Get all user trips
 router.get('/', requiresAuth(), async (req, res) => {
   try {
+    console.log('Fetching trips for user:', req.user._id)
     const trips = await Trip.find({ userId: req.user._id })
       .sort({ createdAt: -1 })
       .select('-__v')
@@ -48,13 +49,18 @@ router.post('/', requiresAuth(), [
   body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required')
 ], async (req, res) => {
   try {
+    console.log('Creating trip for user:', req.user._id)
+    console.log('Trip data:', req.body)
+    
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array())
       return res.status(400).json({ errors: errors.array() })
     }
 
     const { destination, days, budget, preferences } = req.body
 
+    console.log('Calling Gemini API to generate itinerary...')
     // Generate AI itinerary
     const aiItinerary = await generateItinerary({
       destination,
@@ -63,6 +69,8 @@ router.post('/', requiresAuth(), [
       preferences
     })
 
+    console.log('Itinerary generated successfully')
+    
     // For now, use the AI itinerary directly since Google Places API is not available
     const enrichedItinerary = aiItinerary
 
@@ -77,20 +85,23 @@ router.post('/', requiresAuth(), [
     })
 
     await trip.save()
+    console.log('Trip saved to database with ID:', trip._id)
 
     // Update user stats
     await User.findByIdAndUpdate(req.user._id, {
       $inc: { 
         'stats.totalTrips': 1,
         'stats.totalDays': days,
-        'stats.totalSpent': enrichedItinerary.estimatedCost?.total || 0
+        'stats.totalSpent': aiItinerary.estimatedCost?.total || 0
       }
     })
 
+    console.log('User stats updated')
     res.status(201).json(trip)
   } catch (error) {
     console.error('Create trip error:', error)
     console.error('Error details:', error.message)
+    console.error('Stack trace:', error.stack)
     res.status(500).json({ 
       message: 'Server error creating trip',
       error: process.env.NODE_ENV === 'development' ? error.message : {}

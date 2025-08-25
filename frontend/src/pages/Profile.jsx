@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useAuth0 } from '@auth0/auth0-react'
+import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
 import { 
   User, 
@@ -16,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Badge } from '../components/ui/badge'
 
 const Profile = () => {
-  const { user } = useAuth0()
+  const { user } = useAuth()
   const { trips } = useTrip()
 
   const totalDays = trips.reduce((sum, trip) => sum + trip.days, 0)
@@ -55,7 +55,7 @@ const Profile = () => {
     {
       icon: DollarSign,
       label: 'Total Spent',
-      value: `$${totalCost.toLocaleString()}`,
+      value: `₹${totalCost.toLocaleString('en-IN')}`,
       color: 'bg-yellow-100 text-yellow-600'
     }
   ]
@@ -100,7 +100,7 @@ const Profile = () => {
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={user?.picture} alt={user?.name} />
+                  <AvatarImage src={user?.avatar || user?.picture} alt={user?.name} />
                   <AvatarFallback className="text-2xl">
                     {user?.name?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
@@ -117,7 +117,7 @@ const Profile = () => {
                     </div>
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2" />
-                      Member since {new Date(user?.updated_at).getFullYear()}
+                      Member since {new Date(user?.createdAt || user?.updated_at || Date.now()).getFullYear()}
                     </div>
                   </div>
                   
@@ -236,7 +236,7 @@ const Profile = () => {
               ) : (
                 <div className="space-y-4">
                   {trips.slice(0, 5).map((trip, index) => (
-                    <div key={trip.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div key={trip._id || trip.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                       <div className="p-2 bg-blue-100 rounded-lg">
                         <Plane className="h-4 w-4 text-blue-600" />
                       </div>
@@ -244,11 +244,11 @@ const Profile = () => {
                         <h4 className="font-medium text-gray-900">{trip.destination}</h4>
                         <p className="text-sm text-gray-600">
                           {trip.days} days • {trip.budget} budget • 
-                          Created {new Date(trip.createdAt.seconds * 1000).toLocaleDateString()}
+                          Created {new Date(trip.createdAt || trip.updatedAt || Date.now()).toLocaleDateString()}
                         </p>
                       </div>
                       <Badge variant="outline">
-                        ${trip.itinerary?.estimatedCost?.total || 'N/A'}
+                        ₹{trip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
                       </Badge>
                     </div>
                   ))}

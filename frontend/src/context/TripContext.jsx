@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { useAuth0 } from '@auth0/auth0-react'
+import { useAuth } from './AuthContext'
 import { 
   collection, 
   addDoc, 
@@ -12,8 +12,6 @@ import {
   orderBy 
 } from 'firebase/firestore'
 import { db } from '../config/firebase'
-import { generateItinerary } from '../services/geminiService'
-import { getPlaceDetails, getPlacePhotos } from '../services/placesService'
 
 const TripContext = createContext()
 
@@ -26,7 +24,7 @@ export const useTrip = () => {
 }
 
 export const TripProvider = ({ children }) => {
-  const { user, isAuthenticated } = useAuth0()
+  const { user, isAuthenticated } = useAuth()
   const [trips, setTrips] = useState([])
   const [currentTrip, setCurrentTrip] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -43,20 +41,24 @@ export const TripProvider = ({ children }) => {
 
     setLoading(true)
     try {
-      const tripsRef = collection(db, 'trips')
-      const q = query(
-        tripsRef, 
-        where('userId', '==', user.sub),
-        orderBy('createdAt', 'desc')
-      )
-      const querySnapshot = await getDocs(q)
-      const userTrips = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-      setTrips(userTrips)
+      console.log('Fetching trips from backend...')
+      const response = await fetch('http://localhost:5000/api/trips', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const trips = await response.json()
+      console.log('Trips fetched:', trips.length)
+      setTrips(trips)
     } catch (error) {
       console.error('Error fetching trips:', error)
+      setTrips([])
     } finally {
       setLoading(false)
     }
@@ -67,17 +69,8 @@ export const TripProvider = ({ children }) => {
 
     setGenerating(true)
     try {
-      // Save trip to Firestore with user data
-      const tripDoc = {
-        userId: user.sub,
-        destination: tripData.destination,
-        days: tripData.days,
-        budget: tripData.budget,
-        preferences: tripData.preferences,
-        itinerary: null, // Will be populated by backend
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
+      console.log('Creating trip via backend API...')
+      console.log('Trip data:', tripData)
 
       // Call backend to create trip with AI generation
       const response = await fetch('http://localhost:5000/api/trips', {
@@ -91,10 +84,12 @@ export const TripProvider = ({ children }) => {
 
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('Backend error:', errorData)
         throw new Error(errorData.message || 'Failed to create trip')
       }
 
       const newTrip = await response.json()
+      console.log('Trip created successfully:', newTrip._id)
       
       setTrips(prev => [newTrip, ...prev])
       setCurrentTrip(newTrip)
@@ -108,59 +103,24 @@ export const TripProvider = ({ children }) => {
     }
   }
 
-  const enrichItineraryWithPlaces = async (itinerary) => {
-    const enrichedDays = await Promise.all(
-      itinerary.days.map(async (day) => {
-        const enrichedActivities = await Promise.all(
-          day.activities.map(async (activity) => {
-            try {
-              const placeDetails = await getPlaceDetails(activity.name, itinerary.destination)
-              const photos = await getPlacePhotos(placeDetails?.place_id)
-              
-              return {
-                ...activity,
-                placeId: placeDetails?.place_id,
-                rating: placeDetails?.rating,
-                address: placeDetails?.formatted_address,
-                photos: photos,
-                googleMapsUrl: placeDetails?.place_id 
-                  ? `https://www.google.com/maps/place/?q=place_id:${placeDetails.place_id}`
-                  : `https://www.google.com/maps/search/${encodeURIComponent(activity.name + ' ' + itinerary.destination)}`
-              }
-            } catch (error) {
-              console.error('Error enriching activity:', error)
-              return {
-                ...activity,
-                googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(activity.name + ' ' + itinerary.destination)}`
-              }
-            }
-          })
-        )
-        
-        return {
-          ...day,
-          activities: enrichedActivities
-        }
-      })
-    )
-
-    return {
-      ...itinerary,
-      days: enrichedDays
-    }
-  }
 
   const getTripById = async (tripId) => {
     try {
-      const tripRef = doc(db, 'trips', tripId)
-      const tripSnap = await getDoc(tripRef)
+      console.log('Fetching trip by ID:', tripId)
+      const response = await fetch(`http://localhost:5000/api/trips/${tripId}`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
       
-      if (tripSnap.exists()) {
-        const trip = { id: tripSnap.id, ...tripSnap.data() }
-        setCurrentTrip(trip)
-        return trip
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-      return null
+      
+      const trip = await response.json()
+      setCurrentTrip(trip)
+      return trip
     } catch (error) {
       console.error('Error fetching trip:', error)
       return null
@@ -169,7 +129,19 @@ export const TripProvider = ({ children }) => {
 
   const deleteTrip = async (tripId) => {
     try {
-      await deleteDoc(doc(db, 'trips', tripId))
+      console.log('Deleting trip:', tripId)
+      const response = await fetch(`http://localhost:5000/api/trips/${tripId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
       setTrips(prev => prev.filter(trip => trip.id !== tripId))
       if (currentTrip?.id === tripId) {
         setCurrentTrip(null)
