@@ -48,8 +48,6 @@ app.use(auth(config))
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/tripplanner', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
 })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err))
@@ -72,7 +70,8 @@ const syncUserToDatabase = async (req, res, next) => {
           auth0Id: authUser.sub,
           name: authUser.name,
           email: authUser.email,
-          avatar: authUser.picture,
+          avatar: authUser.picture || '',
+          googleAvatar: authUser.picture || '',
           createdAt: new Date(),
           lastLogin: new Date()
         })
@@ -81,6 +80,10 @@ const syncUserToDatabase = async (req, res, next) => {
       } else {
         // Update last login
         user.lastLogin = new Date()
+        if (authUser.picture && authUser.picture !== user.avatar) {
+          user.avatar = authUser.picture
+          user.googleAvatar = authUser.picture
+        }
         await user.save()
       }
 

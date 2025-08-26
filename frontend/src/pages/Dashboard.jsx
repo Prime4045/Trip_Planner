@@ -61,7 +61,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={user?.avatar || user?.picture} alt={user?.name} />
+                <AvatarImage src={user?.avatar || user?.picture || user?.googleAvatar} alt={user?.name} />
                 <AvatarFallback className="text-lg">
                   {user?.name?.charAt(0)?.toUpperCase()}
                 </AvatarFallback>

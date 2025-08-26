@@ -24,6 +24,8 @@ Trip Details:
 - Currency: Indian Rupees (₹)
 - Focus on Indian destinations, culture, and experiences
 
+IMPORTANT: For each activity, use ONLY these type values: 'attraction', 'restaurant', 'hotel', 'activity', 'transport', 'food', 'spiritual', 'shopping', 'cultural', 'sightseeing', 'entertainment', 'nature', 'adventure', 'relaxation'
+
 Please provide a JSON response with this exact structure:
 {
   "destination": "${tripData.destination}",
@@ -65,6 +67,16 @@ Budget guidelines (in Indian Rupees):
 - Low budget (₹2000-4000/day): Focus on free/cheap activities, budget hotels, street food, local transport
 - Medium budget (₹4000-12000/day): Mix of paid attractions, mid-range hotels, local restaurants, AC transport
 - High budget (₹12000+/day): Premium experiences, luxury hotels, fine dining, private transport
+
+Activity type guidelines:
+- Use 'restaurant' for dining experiences
+- Use 'attraction' for monuments, museums, landmarks
+- Use 'activity' for tours, experiences, adventures
+- Use 'hotel' for accommodation
+- Use 'transport' for travel between cities
+- Use 'spiritual' for temples, ashrams, religious sites
+- Use 'shopping' for markets, malls, local crafts
+- Use 'cultural' for cultural shows, festivals
 
 Include 4-6 activities per day with realistic timing. Provide specific place names and locations in ${tripData.destination}, India.
 Make sure all costs are realistic in Indian Rupees and add up correctly in the estimatedCost section.
@@ -110,6 +122,25 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional te
 const validateAndEnhanceItinerary = (itinerary, tripData) => {
   console.log('Validating and enhancing itinerary')
 
+  // Map invalid types to valid ones
+  const typeMapping = {
+    'food': 'restaurant',
+    'dining': 'restaurant',
+    'meal': 'restaurant',
+    'temple': 'spiritual',
+    'shrine': 'spiritual',
+    'market': 'shopping',
+    'bazaar': 'shopping',
+    'mall': 'shopping',
+    'monument': 'attraction',
+    'museum': 'attraction',
+    'palace': 'attraction',
+    'fort': 'attraction',
+    'tour': 'activity',
+    'experience': 'activity',
+    'adventure': 'activity'
+  }
+
   // Ensure all required fields exist
   const enhanced = {
     destination: itinerary.destination || tripData.destination,
@@ -149,6 +180,17 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
       ]
     })
   }
+
+  // Fix activity types to match schema enum
+  enhanced.days.forEach(day => {
+    day.activities.forEach(activity => {
+      if (activity.type && typeMapping[activity.type.toLowerCase()]) {
+        activity.type = typeMapping[activity.type.toLowerCase()]
+      } else if (!['attraction', 'restaurant', 'hotel', 'activity', 'transport', 'food', 'spiritual', 'shopping', 'cultural', 'sightseeing', 'entertainment', 'nature', 'adventure', 'relaxation'].includes(activity.type)) {
+        activity.type = 'activity' // Default fallback
+      }
+    })
+  })
 
   // Recalculate costs if needed
   if (!enhanced.estimatedCost.total || enhanced.estimatedCost.total === 0) {

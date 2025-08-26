@@ -8,7 +8,7 @@ const activitySchema = new mongoose.Schema({
   cost: Number,
   type: {
     type: String,
-    enum: ['attraction', 'restaurant', 'hotel', 'activity', 'transport']
+    enum: ['attraction', 'restaurant', 'hotel', 'activity', 'transport', 'food', 'spiritual', 'shopping', 'cultural', 'sightseeing', 'entertainment', 'nature', 'adventure', 'relaxation']
   },
   location: String,
   placeId: String,

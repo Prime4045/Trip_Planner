@@ -100,7 +100,7 @@ const Profile = () => {
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={user?.avatar || user?.picture} alt={user?.name} />
+                  <AvatarImage src={user?.avatar || user?.picture || user?.googleAvatar} alt={user?.name} />
                   <AvatarFallback className="text-2xl">
                     {user?.name?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
