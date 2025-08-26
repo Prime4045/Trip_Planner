@@ -25,9 +25,9 @@ router.get('/', requiresAuth(), async (req, res) => {
 // Get single trip
 router.get('/:id', requiresAuth(), async (req, res) => {
   try {
-    const trip = await Trip.findOne({ 
-      _id: req.params.id, 
-      userId: req.user._id 
+    const trip = await Trip.findOne({
+      _id: req.params.id,
+      userId: req.user._id
     }).select('-__v')
 
     if (!trip) {
@@ -51,7 +51,7 @@ router.post('/', requiresAuth(), [
   try {
     console.log('Creating trip for user:', req.user._id)
     console.log('Trip data:', req.body)
-    
+
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
       console.log('Validation errors:', errors.array())
@@ -70,7 +70,7 @@ router.post('/', requiresAuth(), [
     })
 
     console.log('Itinerary generated successfully')
-    
+
     // For now, use the AI itinerary directly since Google Places API is not available
     const enrichedItinerary = aiItinerary
 
@@ -89,7 +89,7 @@ router.post('/', requiresAuth(), [
 
     // Update user stats
     await User.findByIdAndUpdate(req.user._id, {
-      $inc: { 
+      $inc: {
         'stats.totalTrips': 1,
         'stats.totalDays': days,
         'stats.totalSpent': aiItinerary.estimatedCost?.total || 0
@@ -102,7 +102,7 @@ router.post('/', requiresAuth(), [
     console.error('Create trip error:', error)
     console.error('Error details:', error.message)
     console.error('Stack trace:', error.stack)
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Server error creating trip',
       error: process.env.NODE_ENV === 'development' ? error.message : {}
     })
@@ -142,9 +142,9 @@ router.put('/:id', requiresAuth(), [
 // Delete trip
 router.delete('/:id', requiresAuth(), async (req, res) => {
   try {
-    const trip = await Trip.findOneAndDelete({ 
-      _id: req.params.id, 
-      userId: req.user._id 
+    const trip = await Trip.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user._id
     })
 
     if (!trip) {
@@ -153,7 +153,7 @@ router.delete('/:id', requiresAuth(), async (req, res) => {
 
     // Update user stats
     await User.findByIdAndUpdate(req.user._id, {
-      $inc: { 
+      $inc: {
         'stats.totalTrips': -1,
         'stats.totalDays': -trip.days,
         'stats.totalSpent': -(trip.itinerary?.estimatedCost?.total || 0)
@@ -203,7 +203,7 @@ router.get('/stats/summary', requiresAuth(), async (req, res) => {
       ...result,
       uniqueDestinations: result.destinations.length,
       topPreferences: Object.entries(preferenceCount)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([, a], [, b]) => b - a)
         .slice(0, 5)
         .map(([pref]) => pref)
     })

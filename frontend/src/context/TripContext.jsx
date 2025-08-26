@@ -1,15 +1,15 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useAuth } from './AuthContext'
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  getDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy 
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  getDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy
 } from 'firebase/firestore'
 import { db } from '../config/firebase'
 
@@ -48,11 +48,11 @@ export const TripProvider = ({ children }) => {
           'Content-Type': 'application/json',
         }
       })
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const trips = await response.json()
       console.log('Trips fetched:', trips.length)
       setTrips(trips)
@@ -90,10 +90,10 @@ export const TripProvider = ({ children }) => {
 
       const newTrip = await response.json()
       console.log('Trip created successfully:', newTrip._id)
-      
+
       setTrips(prev => [newTrip, ...prev])
       setCurrentTrip(newTrip)
-      
+
       return newTrip
     } catch (error) {
       console.error('Error creating trip:', error)
@@ -113,11 +113,11 @@ export const TripProvider = ({ children }) => {
           'Content-Type': 'application/json',
         }
       })
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const trip = await response.json()
       setCurrentTrip(trip)
       return trip
@@ -137,11 +137,11 @@ export const TripProvider = ({ children }) => {
           'Content-Type': 'application/json',
         }
       })
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       setTrips(prev => prev.filter(trip => trip.id !== tripId))
       if (currentTrip?.id === tripId) {
         setCurrentTrip(null)

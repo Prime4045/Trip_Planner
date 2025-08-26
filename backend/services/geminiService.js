@@ -11,7 +11,7 @@ const generateItinerary = async (tripData) => {
     }
 
     console.log('Generating itinerary with Gemini AI for:', tripData.destination)
-    
+
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
@@ -76,16 +76,16 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional te
     // Fixed API call - no extra await
     const result = await model.generateContent(prompt)
     const text = result.response.text()
-    
+
     console.log('Gemini API response received, length:', text.length)
-    
+
     // Clean and parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
       console.log('AI response format invalid, using fallback. Response:', text.substring(0, 200))
       return generateFallbackItinerary(tripData)
     }
-    
+
     let itinerary
     try {
       itinerary = JSON.parse(jsonMatch[0])
@@ -94,14 +94,14 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional te
       console.log('JSON parse failed, using fallback. Error:', parseError.message)
       return generateFallbackItinerary(tripData)
     }
-    
+
     // Validate and enhance the response
     return validateAndEnhanceItinerary(itinerary, tripData)
-    
+
   } catch (error) {
     console.error('Error generating itinerary:', error.message)
     console.error('Full error:', error)
-    
+
     // Fallback itinerary
     return generateFallbackItinerary(tripData)
   }
@@ -109,7 +109,7 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional te
 
 const validateAndEnhanceItinerary = (itinerary, tripData) => {
   console.log('Validating and enhancing itinerary')
-  
+
   // Ensure all required fields exist
   const enhanced = {
     destination: itinerary.destination || tripData.destination,
@@ -155,7 +155,7 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
     const totalCost = enhanced.days.reduce((sum, day) => {
       return sum + day.activities.reduce((daySum, activity) => daySum + (activity.cost || 0), 0)
     }, 0)
-    
+
     enhanced.estimatedCost.total = totalCost
     enhanced.estimatedCost.accommodation = Math.round(totalCost * 0.4)
     enhanced.estimatedCost.food = Math.round(totalCost * 0.3)
@@ -168,7 +168,7 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
 
 const generateFallbackItinerary = (tripData) => {
   console.log('Generating fallback itinerary for:', tripData.destination)
-  
+
   const budgetMultiplier = tripData.budget === 'low' ? 0.5 : tripData.budget === 'high' ? 3 : 1
   const dailyBudget = 3000 * budgetMultiplier // Base budget in INR
 

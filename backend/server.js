@@ -51,8 +51,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/tripplann
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err))
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err))
 
 // Import models
 const User = require('./models/User')
@@ -62,10 +62,10 @@ const syncUserToDatabase = async (req, res, next) => {
   if (req.oidc.isAuthenticated()) {
     try {
       const authUser = req.oidc.user
-      
+
       // Check if user exists in database
       let user = await User.findOne({ auth0Id: authUser.sub })
-      
+
       if (!user) {
         // Create new user
         user = new User({
@@ -77,13 +77,13 @@ const syncUserToDatabase = async (req, res, next) => {
           lastLogin: new Date()
         })
         await user.save()
-        console.log('New user created:', user.email)
+        console.log('New user created:')
       } else {
         // Update last login
         user.lastLogin = new Date()
         await user.save()
       }
-      
+
       // Attach user to request
       req.user = user
     } catch (error) {
@@ -99,7 +99,6 @@ app.use(syncUserToDatabase)
 // Auth status endpoint
 app.get('/api/auth/status', (req, res) => {
   if (req.oidc.isAuthenticated()) {
-    console.log('User authenticated:', req.user)
     res.json({
       isAuthenticated: true,
       user: {
@@ -114,7 +113,6 @@ app.get('/api/auth/status', (req, res) => {
       }
     })
   } else {
-    console.log('User not authenticated')
     res.json({ isAuthenticated: false })
   }
 })
@@ -137,11 +135,11 @@ app.get('/api/user/profile', requiresAuth(), async (req, res) => {
 app.put('/api/user/profile', requiresAuth(), async (req, res) => {
   try {
     const { preferences } = req.body
-    
+
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { 
-        $set: { 
+      {
+        $set: {
           preferences,
           updatedAt: new Date()
         }
@@ -163,8 +161,8 @@ app.use('/api/places', require('./routes/places'))
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     auth: req.oidc.isAuthenticated() ? 'authenticated' : 'not authenticated'
@@ -193,7 +191,7 @@ app.get('/auth/callback', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack)
-  res.status(500).json({ 
+  res.status(500).json({
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'development' ? err.message : {}
   })

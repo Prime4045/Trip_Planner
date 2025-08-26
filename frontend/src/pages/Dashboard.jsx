@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
-import { 
-  Plus, 
-  MapPin, 
-  Calendar, 
-  DollarSign, 
-  Trash2, 
+import {
+  Plus,
+  MapPin,
+  Calendar,
+  DollarSign,
+  Trash2,
   ExternalLink,
   Plane,
   Clock
@@ -104,7 +104,7 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -120,7 +120,7 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -200,14 +200,14 @@ const Dashboard = () => {
                         </Button>
                       </div>
                     </div>
-                    
+
                     <CardContent className="p-6">
                       <div className="space-y-3">
                         <div className="flex items-center text-sm text-gray-600">
                           <Calendar className="h-4 w-4 mr-2" />
                           Created {formatDate(trip.createdAt || trip.updatedAt)}
                         </div>
-                        
+
                         <div className="flex items-center text-sm text-gray-600">
                           <DollarSign className="h-4 w-4 mr-2" />
                           Est. ₹{trip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}

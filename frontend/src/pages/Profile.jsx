@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
-import { 
-  User, 
-  Mail, 
-  Calendar, 
-  MapPin, 
+import {
+  User,
+  Mail,
+  Calendar,
+  MapPin,
   Plane,
   DollarSign,
   Clock,
@@ -29,7 +29,7 @@ const Profile = () => {
     }, {})
 
   const topPreferences = Object.entries(favoritePreferences)
-    .sort(([,a], [,b]) => b - a)
+    .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
     .map(([pref]) => pref)
 
@@ -105,7 +105,7 @@ const Profile = () => {
                     {user?.name?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                
+
                 <div className="flex-1 text-center md:text-left">
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     {user?.name}
@@ -120,7 +120,7 @@ const Profile = () => {
                       Member since {new Date(user?.createdAt || user?.updated_at || Date.now()).getFullYear()}
                     </div>
                   </div>
-                  
+
                   {topPreferences.length > 0 && (
                     <div className="mt-4">
                       <p className="text-sm text-gray-600 mb-2">Favorite Travel Styles:</p>
@@ -182,18 +182,16 @@ const Profile = () => {
                 {achievements.map((achievement, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-lg border-2 transition-all ${
-                      achievement.earned
-                        ? 'border-yellow-200 bg-yellow-50'
-                        : 'border-gray-200 bg-gray-50 opacity-60'
-                    }`}
+                    className={`p-4 rounded-lg border-2 transition-all ${achievement.earned
+                      ? 'border-yellow-200 bg-yellow-50'
+                      : 'border-gray-200 bg-gray-50 opacity-60'
+                      }`}
                   >
                     <div className="flex items-center mb-2">
                       <span className="text-2xl mr-3">{achievement.icon}</span>
                       <div>
-                        <h3 className={`font-semibold ${
-                          achievement.earned ? 'text-yellow-800' : 'text-gray-600'
-                        }`}>
+                        <h3 className={`font-semibold ${achievement.earned ? 'text-yellow-800' : 'text-gray-600'
+                          }`}>
                           {achievement.title}
                         </h3>
                         {achievement.earned && (
@@ -203,9 +201,8 @@ const Profile = () => {
                         )}
                       </div>
                     </div>
-                    <p className={`text-sm ${
-                      achievement.earned ? 'text-yellow-700' : 'text-gray-500'
-                    }`}>
+                    <p className={`text-sm ${achievement.earned ? 'text-yellow-700' : 'text-gray-500'
+                      }`}>
                       {achievement.description}
                     </p>
                   </div>
@@ -243,7 +240,7 @@ const Profile = () => {
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900">{trip.destination}</h4>
                         <p className="text-sm text-gray-600">
-                          {trip.days} days • {trip.budget} budget • 
+                          {trip.days} days • {trip.budget} budget •
                           Created {new Date(trip.createdAt || trip.updatedAt || Date.now()).toLocaleDateString()}
                         </p>
                       </div>
