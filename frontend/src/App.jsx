@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext'
+import { CurrencyProvider } from './context/CurrencyContext'
 import Login from "./pages/Login";
 import { TripProvider } from './context/TripContext'
 import Header from './components/Header'
@@ -26,11 +27,13 @@ import { Toaster } from './components/ui/toaster'
 function App() {
   return (
     <AuthProvider>
-      <FirebaseProvider>
-        <TripProvider>
-          <AppContent />
-        </TripProvider>
-      </FirebaseProvider>
+      <CurrencyProvider>
+        <FirebaseProvider>
+          <TripProvider>
+            <AppContent />
+          </TripProvider>
+        </FirebaseProvider>
+      </CurrencyProvider>
     </AuthProvider>
   )
 }

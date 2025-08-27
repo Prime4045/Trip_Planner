@@ -75,14 +75,14 @@ const Home = () => {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-4xl sm:text-6xl font-bold text-white mb-6">
-                Discover Incredible India with{' '}
+                Plan Your Perfect Journey with{' '}
                 <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
                   AI Magic
                 </span>
               </h1>
               <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-                Explore the diverse beauty of India with personalized travel itineraries. Our AI creates 
-                perfect journeys across incredible destinations from Kashmir to Kanyakumari.
+                Explore the world with personalized travel itineraries powered by AI. Create perfect 
+                journeys to any destination worldwide with smart recommendations and detailed planning.
               </p>
             </motion.div>
 

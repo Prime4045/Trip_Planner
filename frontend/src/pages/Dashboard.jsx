@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
+import { useCurrency } from '../context/CurrencyContext'
 import {
   Plus,
   MapPin,
@@ -21,6 +22,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 const Dashboard = () => {
   const { user } = useAuth()
   const { trips, loading, deleteTrip, fetchUserTrips } = useTrip()
+  const { formatCurrency } = useCurrency()
 
   useEffect(() => {
     fetchUserTrips()
@@ -36,14 +38,6 @@ const Dashboard = () => {
     })
   }
 
-  const formatBudget = (budget) => {
-    const budgetLabels = {
-      low: 'Budget-Friendly',
-      medium: 'Mid-Range',
-      high: 'Luxury'
-    }
-    return budgetLabels[budget] || budget
-  }
 
   if (loading) {
     return <LoadingSpinner message="Loading your trips..." />
@@ -186,8 +180,8 @@ const Dashboard = () => {
                     <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
                       <div className="absolute inset-0 bg-black/20" />
                       <div className="absolute bottom-4 left-4 text-white">
-                        <h3 className="text-xl font-bold">{trip.destination}</h3>
-                        <p className="text-blue-100">{trip.days} days • {formatBudget(trip.budget)}</p>
+                        <h3 className="text-xl font-bold">{trip.fromLocation} → {trip.destination}</h3>
+                        <p className="text-blue-100">{trip.days} days • {formatCurrency(trip.totalBudget)}</p>
                       </div>
                       <div className="absolute top-4 right-4">
                         <Button
@@ -210,7 +204,7 @@ const Dashboard = () => {
 
                         <div className="flex items-center text-sm text-gray-600">
                           <DollarSign className="h-4 w-4 mr-2" />
-                          Est. ₹{trip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
+                          Budget: {formatCurrency(trip.totalBudget || trip.itinerary?.estimatedCost?.total)}
                         </div>
 
                         <div className="flex flex-wrap gap-1 mt-3">

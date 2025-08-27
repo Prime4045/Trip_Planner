@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTrip } from '../context/TripContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { 
   MapPin, 
   Calendar, 
@@ -9,7 +10,8 @@ import {
   Users, 
   Plane,
   Loader2,
-  Sparkles
+  Sparkles,
+  Navigation
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
@@ -27,25 +29,23 @@ import { useToast } from '../hooks/use-toast'
 const CreateTrip = () => {
   const navigate = useNavigate()
   const { createTrip, generating } = useTrip()
+  const { formatCurrency, getCurrencySymbol } = useCurrency()
   const { toast } = useToast()
   
   const [formData, setFormData] = useState({
+    fromLocation: '',
     destination: '',
-    days: '',
-    budget: '',
+    startDate: '',
+    endDate: '',
+    totalBudget: '',
     preferences: []
   })
 
-  const budgetOptions = [
-    { value: 'low', label: 'Budget-Friendly (₹2000-4000/day)', icon: '💰' },
-    { value: 'medium', label: 'Mid-Range (₹4000-12000/day)', icon: '💳' },
-    { value: 'high', label: 'Luxury (₹12000+/day)', icon: '💎' }
-  ]
-
   const preferenceOptions = [
-    'Adventure', 'Cultural Heritage', 'Spiritual', 'Food & Cuisine', 'Nature & Wildlife',
-    'History & Monuments', 'Shopping', 'Photography', 'Hill Stations', 'Beaches',
-    'Mountains', 'Museums', 'Local Experiences', 'Wellness & Ayurveda', 'Festivals'
+    'Adventure', 'Cultural Heritage', 'Food & Cuisine', 'Nature & Wildlife',
+    'History & Monuments', 'Shopping', 'Photography', 'Museums',
+    'Local Experiences', 'Nightlife', 'Beaches', 'Mountains',
+    'Architecture', 'Art & Galleries', 'Sports', 'Festivals'
   ]
 
   const handlePreferenceToggle = (preference) => {
@@ -57,10 +57,21 @@ const CreateTrip = () => {
     }))
   }
 
+  const calculateDays = () => {
+    if (formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate)
+      const end = new Date(formData.endDate)
+      const diffTime = Math.abs(end - start)
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      return diffDays || 1
+    }
+    return 1
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!formData.destination || !formData.days || !formData.budget) {
+    if (!formData.fromLocation || !formData.destination || !formData.startDate || !formData.endDate || !formData.totalBudget) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
@@ -78,10 +89,25 @@ const CreateTrip = () => {
       return
     }
 
+    const days = calculateDays()
+    if (days <= 0) {
+      toast({
+        title: "Invalid Dates",
+        description: "Return date must be after start date.",
+        variant: "destructive"
+      })
+      return
+    }
+
     try {
       const trip = await createTrip({
-        ...formData,
-        days: parseInt(formData.days)
+        fromLocation: formData.fromLocation,
+        destination: formData.destination,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        days: days,
+        totalBudget: parseInt(formData.totalBudget),
+        preferences: formData.preferences
       })
       
       toast({
@@ -89,7 +115,7 @@ const CreateTrip = () => {
         description: "Your AI-powered itinerary is ready.",
       })
       
-      navigate(`/trip/${trip.id}`)
+      navigate(`/trip/${trip._id || trip.id}`)
     } catch (error) {
       toast({
         title: "Error",
@@ -134,63 +160,95 @@ const CreateTrip = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Destination */}
-                <div className="space-y-2">
-                  <Label htmlFor="destination" className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Destination *
-                  </Label>
-                  <Input
-                    id="destination"
-                    placeholder="e.g., Delhi, Mumbai, Goa, Rajasthan"
-                    value={formData.destination}
-                    onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
-                    className="text-lg"
-                  />
-                </div>
-
-                {/* Days and Budget */}
+                {/* From and To Locations */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="days" className="flex items-center">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Number of Days *
+                    <Label htmlFor="fromLocation" className="flex items-center">
+                      <Navigation className="mr-2 h-4 w-4" />
+                      From (Starting Point) *
                     </Label>
-                    <Select value={formData.days} onValueChange={(value) => setFormData(prev => ({ ...prev, days: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select days" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[1,2,3,4,5,6,7,8,9,10,14,21].map(day => (
-                          <SelectItem key={day} value={day.toString()}>
-                            {day} {day === 1 ? 'day' : 'days'}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      id="fromLocation"
+                      placeholder="e.g., Delhi, Mumbai, Your City"
+                      value={formData.fromLocation}
+                      onChange={(e) => setFormData(prev => ({ ...prev, fromLocation: e.target.value }))}
+                      className="text-lg"
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="flex items-center">
-                      <DollarSign className="mr-2 h-4 w-4" />
-                      Budget Range *
+                    <Label htmlFor="destination" className="flex items-center">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      To (Destination) *
                     </Label>
-                    <Select value={formData.budget} onValueChange={(value) => setFormData(prev => ({ ...prev, budget: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select budget" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {budgetOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <span className="flex items-center">
-                              <span className="mr-2">{option.icon}</span>
-                              {option.label}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      id="destination"
+                      placeholder="e.g., Paris, Tokyo, Bali, New York"
+                      value={formData.destination}
+                      onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+                      className="text-lg"
+                    />
                   </div>
+                </div>
+
+                {/* Travel Dates */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate" className="flex items-center">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Start Date *
+                    </Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={formData.startDate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate" className="flex items-center">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Return Date *
+                    </Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={formData.endDate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                      min={formData.startDate || new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                </div>
+
+                {/* Trip Duration Display */}
+                {formData.startDate && formData.endDate && (
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      <strong>Trip Duration:</strong> {calculateDays()} days
+                    </p>
+                  </div>
+                )}
+
+                {/* Total Budget */}
+                <div className="space-y-2">
+                  <Label htmlFor="totalBudget" className="flex items-center">
+                    <DollarSign className="mr-2 h-4 w-4" />
+                    Total Trip Budget ({getCurrencySymbol()}) *
+                  </Label>
+                  <Input
+                    id="totalBudget"
+                    type="number"
+                    placeholder={`Enter your total budget in ${getCurrencySymbol()}`}
+                    value={formData.totalBudget}
+                    onChange={(e) => setFormData(prev => ({ ...prev, totalBudget: e.target.value }))}
+                    className="text-lg"
+                    min="1"
+                  />
+                  <p className="text-sm text-gray-500">
+                    This will be distributed across accommodation, food, activities, and transport
+                  </p>
                 </div>
 
                 {/* Preferences */}

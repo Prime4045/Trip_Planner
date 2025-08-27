@@ -10,33 +10,38 @@ const generateItinerary = async (tripData) => {
       return generateFallbackItinerary(tripData)
     }
 
-    console.log('Generating itinerary with Gemini AI for:', tripData.destination)
+    console.log('Generating itinerary with Gemini AI for:', `${tripData.fromLocation} to ${tripData.destination}`)
 
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
-Create a detailed ${tripData.days}-day travel itinerary for ${tripData.destination}, India.
+Create a detailed ${tripData.days}-day travel itinerary from ${tripData.fromLocation} to ${tripData.destination}.
 
 Trip Details:
-- Budget: ${tripData.budget}
+- Total Budget: ${tripData.totalBudget} (distribute across all expenses)
 - Days: ${tripData.days}
+- Start Date: ${tripData.startDate}
+- End Date: ${tripData.endDate}
 - Preferences: ${tripData.preferences.join(', ')}
-- Currency: Indian Rupees (₹)
-- Focus on Indian destinations, culture, and experiences
+- From: ${tripData.fromLocation}
+- To: ${tripData.destination}
 
 IMPORTANT: For each activity, use ONLY these type values: 'attraction', 'restaurant', 'hotel', 'activity', 'transport', 'food', 'spiritual', 'shopping', 'cultural', 'sightseeing', 'entertainment', 'nature', 'adventure', 'relaxation'
 
 Please provide a JSON response with this exact structure:
 {
+  "fromLocation": "${tripData.fromLocation}",
   "destination": "${tripData.destination}",
   "totalDays": ${tripData.days},
+  "startDate": "${tripData.startDate}",
+  "endDate": "${tripData.endDate}",
   "estimatedCost": {
     "total": 0,
     "accommodation": 0,
     "food": 0,
     "activities": 0,
     "transport": 0,
-    "currency": "INR"
+    "currency": "USD"
   },
   "carbonFootprint": {
     "total": 0,
@@ -55,7 +60,7 @@ Please provide a JSON response with this exact structure:
           "duration": "2 hours",
           "cost": 500,
           "type": "attraction",
-          "location": "Specific address or area in India",
+          "location": "Specific address or area",
           "googleMapsUrl": "https://www.google.com/maps/search/activity+name+${tripData.destination}"
         }
       ]
@@ -63,10 +68,10 @@ Please provide a JSON response with this exact structure:
   ]
 }
 
-Budget guidelines (in Indian Rupees):
-- Low budget (₹2000-4000/day): Focus on free/cheap activities, budget hotels, street food, local transport
-- Medium budget (₹4000-12000/day): Mix of paid attractions, mid-range hotels, local restaurants, AC transport
-- High budget (₹12000+/day): Premium experiences, luxury hotels, fine dining, private transport
+Budget guidelines:
+- Distribute the total budget of ${tripData.totalBudget} across ${tripData.days} days
+- Daily budget: approximately ${Math.round(tripData.totalBudget / tripData.days)} per day
+- Include transport from ${tripData.fromLocation} to ${tripData.destination}
 
 Activity type guidelines:
 - Use 'restaurant' for dining experiences
@@ -78,9 +83,9 @@ Activity type guidelines:
 - Use 'shopping' for markets, malls, local crafts
 - Use 'cultural' for cultural shows, festivals
 
-Include 4-6 activities per day with realistic timing. Provide specific place names and locations in ${tripData.destination}, India.
-Make sure all costs are realistic in Indian Rupees and add up correctly in the estimatedCost section.
-Focus on Indian culture, heritage sites, local cuisine, and authentic experiences.
+Include 4-6 activities per day with realistic timing. Provide specific place names and locations in ${tripData.destination}.
+Make sure all costs are realistic and add up correctly in the estimatedCost section.
+Focus on authentic local experiences and popular attractions.
 
 IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional text.
 `
@@ -143,15 +148,18 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
 
   // Ensure all required fields exist
   const enhanced = {
+    fromLocation: itinerary.fromLocation || tripData.fromLocation,
     destination: itinerary.destination || tripData.destination,
+    startDate: itinerary.startDate || tripData.startDate,
+    endDate: itinerary.endDate || tripData.endDate,
     totalDays: itinerary.totalDays || tripData.days,
     estimatedCost: itinerary.estimatedCost || {
-      total: calculateBudgetEstimate(tripData.budget, tripData.days),
+      total: tripData.totalBudget,
       accommodation: 0,
       food: 0,
       activities: 0,
       transport: 0,
-      currency: "INR"
+      currency: "USD"
     },
     carbonFootprint: itinerary.carbonFootprint || {
       total: calculateCarbonFootprint(tripData.destination, tripData.days),
@@ -169,13 +177,13 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
       activities: [
         {
           time: "09:00",
-          name: "Morning Heritage Walk",
-          description: `Discover the rich heritage and culture of ${tripData.destination}`,
+          name: "Morning City Tour",
+          description: `Explore the highlights and attractions of ${tripData.destination}`,
           duration: "3 hours",
-          cost: 500,
+          cost: Math.round(tripData.totalBudget / tripData.days * 0.3),
           type: "activity",
           location: tripData.destination,
-          googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(tripData.destination + ' heritage sites')}`
+          googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(tripData.destination + ' attractions')}`
         }
       ]
     })
@@ -194,9 +202,7 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
 
   // Recalculate costs if needed
   if (!enhanced.estimatedCost.total || enhanced.estimatedCost.total === 0) {
-    const totalCost = enhanced.days.reduce((sum, day) => {
-      return sum + day.activities.reduce((daySum, activity) => daySum + (activity.cost || 0), 0)
-    }, 0)
+    const totalCost = tripData.totalBudget
 
     enhanced.estimatedCost.total = totalCost
     enhanced.estimatedCost.accommodation = Math.round(totalCost * 0.4)
@@ -209,21 +215,23 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
 }
 
 const generateFallbackItinerary = (tripData) => {
-  console.log('Generating fallback itinerary for:', tripData.destination)
+  console.log('Generating fallback itinerary for:', `${tripData.fromLocation} to ${tripData.destination}`)
 
-  const budgetMultiplier = tripData.budget === 'low' ? 0.5 : tripData.budget === 'high' ? 3 : 1
-  const dailyBudget = 3000 * budgetMultiplier // Base budget in INR
+  const dailyBudget = Math.round(tripData.totalBudget / tripData.days)
 
   return {
+    fromLocation: tripData.fromLocation,
     destination: tripData.destination,
+    startDate: tripData.startDate,
+    endDate: tripData.endDate,
     totalDays: tripData.days,
     estimatedCost: {
-      total: dailyBudget * tripData.days,
+      total: tripData.totalBudget,
       accommodation: dailyBudget * 0.4 * tripData.days,
       food: dailyBudget * 0.3 * tripData.days,
       activities: dailyBudget * 0.2 * tripData.days,
       transport: dailyBudget * 0.1 * tripData.days,
-      currency: "INR"
+      currency: "USD"
     },
     carbonFootprint: {
       total: calculateCarbonFootprint(tripData.destination, tripData.days),
@@ -236,55 +244,57 @@ const generateFallbackItinerary = (tripData) => {
       activities: [
         {
           time: "09:00",
-          name: "Morning Heritage Tour",
-          description: `Start your day exploring the cultural heritage of ${tripData.destination}`,
+          name: "Morning City Tour",
+          description: `Start your day exploring the highlights of ${tripData.destination}`,
           duration: "3 hours",
-          cost: 800,
+          cost: Math.round(dailyBudget * 0.3),
           type: "activity",
           location: tripData.destination,
-          googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(tripData.destination + ' tourist places')}`
+          googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(tripData.destination + ' attractions')}`
         },
         {
           time: "13:00",
-          name: "Traditional Indian Lunch",
-          description: `Experience authentic ${tripData.destination} cuisine`,
+          name: "Local Restaurant",
+          description: `Experience authentic local cuisine in ${tripData.destination}`,
           duration: "1 hour",
-          cost: 400,
+          cost: Math.round(dailyBudget * 0.2),
           type: "restaurant",
           location: tripData.destination,
           googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(tripData.destination + ' restaurants')}`
         },
         {
           time: "15:00",
-          name: "Cultural Heritage Site",
-          description: `Immerse yourself in the rich history and culture of ${tripData.destination}`,
+          name: "Popular Attraction",
+          description: `Visit one of the most popular attractions in ${tripData.destination}`,
           duration: "2 hours",
-          cost: 300,
+          cost: Math.round(dailyBudget * 0.25),
           type: "attraction",
           location: tripData.destination,
-          googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(tripData.destination + ' heritage sites')}`
+          googleMapsUrl: `https://www.google.com/maps/search/${encodeURIComponent(tripData.destination + ' attractions')}`
         }
       ]
     }))
   }
 }
 
-const calculateBudgetEstimate = (budget, days) => {
-  const multipliers = { low: 2500, medium: 6000, high: 15000 } // INR per day
-  return (multipliers[budget] || 6000) * days
-}
-
 const calculateCarbonFootprint = (destination, days) => {
   // Simple calculation based on destination and duration
-  const baseFootprint = 35 // kg CO2 per day (lower for domestic travel in India)
+  const baseFootprint = 50 // kg CO2 per day
   const destinationMultiplier = getDestinationCarbonMultiplier(destination)
   return Math.round(baseFootprint * days * destinationMultiplier)
 }
 
 const getDestinationCarbonMultiplier = (destination) => {
-  // Simple multiplier based on typical travel distance and local transport
-  // Lower multiplier for domestic Indian travel
-  return 0.8 // Default multiplier for India
+  // Simple multiplier based on typical travel distance
+  const lowerCaseDestination = destination.toLowerCase()
+  
+  if (lowerCaseDestination.includes('europe') || lowerCaseDestination.includes('usa')) {
+    return 1.5 // Higher for international travel
+  } else if (lowerCaseDestination.includes('asia')) {
+    return 1.2
+  }
+  
+  return 1.0 // Default multiplier
 }
 
 module.exports = {

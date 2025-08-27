@@ -1,22 +1,62 @@
 const express = require('express')
-const { getPlaceDetails, getPlacePhotos, searchPlaces } = require('../services/placesService')
+const { 
+  textSearchPlaces, 
+  nearbySearchPlaces, 
+  getPlaceDetails, 
+  getPlacePhotos, 
+  autocompleteSearch 
+} = require('../services/rapidApiPlacesService')
 
 const router = express.Router()
 
-// Search places
+// Text search places
 router.get('/search', async (req, res) => {
   try {
-    const { query, location, type } = req.query
+    const { query, location } = req.query
 
     if (!query) {
       return res.status(400).json({ message: 'Query parameter is required' })
     }
 
-    const places = await searchPlaces(query, location, type)
+    const places = await textSearchPlaces(query, location)
     res.json(places)
   } catch (error) {
     console.error('Places search error:', error)
     res.status(500).json({ message: 'Server error searching places' })
+  }
+})
+
+// Nearby search places
+router.get('/nearby', async (req, res) => {
+  try {
+    const { lat, lng, radius, type } = req.query
+
+    if (!lat || !lng) {
+      return res.status(400).json({ message: 'Latitude and longitude are required' })
+    }
+
+    const places = await nearbySearchPlaces(lat, lng, radius, type)
+    res.json(places)
+  } catch (error) {
+    console.error('Nearby places error:', error)
+    res.status(500).json({ message: 'Server error searching nearby places' })
+  }
+})
+
+// Autocomplete search
+router.get('/autocomplete', async (req, res) => {
+  try {
+    const { input, location } = req.query
+
+    if (!input) {
+      return res.status(400).json({ message: 'Input parameter is required' })
+    }
+
+    const suggestions = await autocompleteSearch(input, location)
+    res.json(suggestions)
+  } catch (error) {
+    console.error('Autocomplete error:', error)
+    res.status(500).json({ message: 'Server error with autocomplete' })
   }
 })
 

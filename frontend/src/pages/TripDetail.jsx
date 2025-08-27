@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTrip } from '../context/TripContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { 
   MapPin, 
   Calendar, 
@@ -24,6 +25,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 const TripDetail = () => {
   const { id } = useParams()
   const { currentTrip, getTripById } = useTrip()
+  const { formatCurrency } = useCurrency()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -54,21 +56,14 @@ const TripDetail = () => {
   }
 
   const formatDate = (date) => {
-    return new Date(date.seconds * 1000).toLocaleDateString('en-US', {
+    const dateObj = date?.seconds ? new Date(date.seconds * 1000) : new Date(date)
+    return dateObj.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
   }
 
-  const formatBudget = (budget) => {
-    const budgetLabels = {
-      low: 'Budget-Friendly',
-      medium: 'Mid-Range',
-      high: 'Luxury'
-    }
-    return budgetLabels[budget] || budget
-  }
 
   const getActivityIcon = (type) => {
     switch (type) {
@@ -76,6 +71,9 @@ const TripDetail = () => {
       case 'hotel': return '🏨'
       case 'attraction': return '🎯'
       case 'activity': return '🎪'
+      case 'transport': return '🚗'
+      case 'shopping': return '🛍️'
+      case 'nature': return '🌿'
       default: return '📍'
     }
   }
@@ -109,11 +107,16 @@ const TripDetail = () => {
 
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              {currentTrip.destination}
+              {currentTrip.fromLocation} → {currentTrip.destination}
             </h1>
             <p className="text-lg text-gray-600">
-              {currentTrip.days} days • {formatBudget(currentTrip.budget)} • Created {formatDate(currentTrip.createdAt)}
+              {currentTrip.days} days • {formatCurrency(currentTrip.totalBudget)} total budget • Created {formatDate(currentTrip.createdAt)}
             </p>
+            {currentTrip.startDate && currentTrip.endDate && (
+              <p className="text-gray-500">
+                {formatDate(currentTrip.startDate)} - {formatDate(currentTrip.endDate)}
+              </p>
+            )}
           </div>
         </motion.div>
 
@@ -133,7 +136,7 @@ const TripDetail = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Estimated Cost</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ₹{currentTrip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
+                    {formatCurrency(currentTrip.totalBudget || currentTrip.itinerary?.estimatedCost?.total)}
                   </p>
                 </div>
               </div>
@@ -255,7 +258,7 @@ const TripDetail = () => {
                                         </span>
                                         <span className="flex items-center">
                                           <DollarSign className="h-4 w-4 mr-1" />
-                                          ₹{activity.cost}
+                                          {formatCurrency(activity.cost)}
                                         </span>
                                       </div>
                                     </div>
@@ -341,10 +344,11 @@ const TripDetail = () => {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {Object.entries(currentTrip.itinerary.estimatedCost).map(([key, value]) => (
+                    if (key === 'currency') return null
                     <div key={key} className="text-center p-4 bg-gray-50 rounded-lg">
                       <p className="text-sm font-medium text-gray-600 capitalize">
                         {key === 'total' ? 'Total Cost' : key}
-                      </p>
+                        <p className="text-xl font-bold text-gray-900">{formatCurrency(value)}</p>
                       <p className="text-xl font-bold text-gray-900">${value}</p>
                     </div>
                   ))}

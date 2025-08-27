@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { motion } from 'framer-motion'
-import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle } from 'lucide-react'
+import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle, DollarSign } from 'lucide-react'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -15,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const Header = () => {
   const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth()
+  const { currency, changeCurrency } = useCurrency()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -70,6 +72,32 @@ const Header = () => {
 
           {/* Auth Section */}
           <div className="flex items-center space-x-4">
+            {/* Currency Switcher */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center space-x-1">
+                  <DollarSign className="h-4 w-4" />
+                  <span>{currency}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => changeCurrency('INR')}
+                  className={currency === 'INR' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">₹</span>
+                  Indian Rupee (INR)
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => changeCurrency('USD')}
+                  className={currency === 'USD' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">$</span>
+                  US Dollar (USD)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {isLoading ? (
               <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
             ) : isAuthenticated ? (
