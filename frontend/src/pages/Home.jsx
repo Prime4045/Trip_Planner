@@ -75,14 +75,14 @@ const Home = () => {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-4xl sm:text-6xl font-bold text-white mb-6">
-                Plan Your Perfect Journey with{' '}
+                Plan Your Perfect Journey{' '}
                 <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                  AI Magic
+                  Anywhere in the World
                 </span>
               </h1>
               <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-                Explore the world with personalized travel itineraries powered by AI. Create perfect 
-                journeys to any destination worldwide with smart recommendations and detailed planning.
+                Discover amazing destinations worldwide with AI-powered travel planning. From bustling cities 
+                to serene beaches, create personalized itineraries for any destination on Earth.
               </p>
             </motion.div>
 

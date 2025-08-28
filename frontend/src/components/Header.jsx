@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCurrency } from '../context/CurrencyContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { motion } from 'framer-motion'
 import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle, DollarSign } from 'lucide-react'
 import { Button } from './ui/button'
@@ -16,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const Header = () => {
   const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth()
+  const { currency, changeCurrency } = useCurrency()
   const { currency, changeCurrency } = useCurrency()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
