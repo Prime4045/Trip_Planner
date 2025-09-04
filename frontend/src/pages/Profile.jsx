@@ -55,7 +55,7 @@ const Profile = () => {
     {
       icon: DollarSign,
       label: 'Total Spent',
-      value: `₹${totalCost.toLocaleString('en-IN')}`,
+      value: formatCurrency(totalCost),
       color: 'bg-yellow-100 text-yellow-600'
     }
   ]

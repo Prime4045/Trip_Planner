@@ -136,7 +136,7 @@ const TripDetail = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Estimated Cost</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(currentTrip.totalBudget || currentTrip.itinerary?.estimatedCost?.total)}
+                    {formatCurrency(currentTrip.itinerary?.estimatedCost?.total || currentTrip.totalBudget)}
                   </p>
                 </div>
               </div>

@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check, X, Star, Zap, Crown, Gift } from 'lucide-react'
+import { useCurrency } from '../context/CurrencyContext'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 
 const Pricing = () => {
+  const { formatCurrency, getCurrencySymbol } = useCurrency()
   const [billingCycle, setBillingCycle] = useState('monthly')
 
   const plans = [
@@ -180,7 +182,7 @@ const Pricing = () => {
                   <div className="mt-4">
                     <div className="flex items-baseline justify-center">
                       <span className="text-4xl font-bold text-gray-900">
-                        ${getPrice(plan)}
+                        {plan.price.monthly === 0 ? 'Free' : formatCurrency(getPrice(plan))}
                       </span>
                       {plan.price.monthly > 0 && (
                         <span className="text-gray-600 ml-1">
