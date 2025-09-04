@@ -40,7 +40,7 @@ export const CurrencyProvider = ({ children }) => {
   const formatCurrency = (amount) => {
     if (!amount || isNaN(amount)) return 'N/A'
     
-    const convertedAmount = amount * exchangeRate
+    const convertedAmount = currency === 'USD' ? amount * exchangeRate : amount
     
     if (currency === 'USD') {
       return `$${convertedAmount.toFixed(2)}`
