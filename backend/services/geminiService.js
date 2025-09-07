@@ -15,7 +15,7 @@ const generateItinerary = async (tripData) => {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
-Create a detailed ${tripData.days}-day travel itinerary from ${tripData.fromLocation} to ${tripData.destination}.
+Create a detailed ${tripData.days}-day travel itinerary for ${tripData.destination}.
 
 Trip Details:
 - Total Budget: ${tripData.totalBudget} (distribute across all expenses)
@@ -23,14 +23,15 @@ Trip Details:
 - Start Date: ${tripData.startDate}
 - End Date: ${tripData.endDate}
 - Preferences: ${tripData.preferences.join(', ')}
-- From: ${tripData.fromLocation}
-- To: ${tripData.destination}
+- Trip Type: ${tripData.tripType || 'general'}
+- With Children: ${tripData.withChildren ? 'Yes' : 'No'}
+- With Pets: ${tripData.withPets ? 'Yes' : 'No'}
+- Destination: ${tripData.destination}
 
 IMPORTANT: For each activity, use ONLY these type values: 'attraction', 'restaurant', 'hotel', 'activity', 'transport', 'food', 'spiritual', 'shopping', 'cultural', 'sightseeing', 'entertainment', 'nature', 'adventure', 'relaxation'
 
 Please provide a JSON response with this exact structure:
 {
-  "fromLocation": "${tripData.fromLocation}",
   "destination": "${tripData.destination}",
   "totalDays": ${tripData.days},
   "startDate": "${tripData.startDate}",
@@ -68,10 +69,16 @@ Please provide a JSON response with this exact structure:
   ]
 }
 
+Make the itinerary specific to ${tripData.destination} with real places, attractions, and local experiences.
+Include authentic local cuisine, popular tourist spots, and hidden gems.
+Consider the trip type (${tripData.tripType}) and adjust activities accordingly.
+${tripData.withChildren ? 'Include family-friendly activities suitable for children.' : ''}
+${tripData.withPets ? 'Include pet-friendly locations and activities.' : ''}
+
 Budget guidelines:
 - Distribute the total budget of ${tripData.totalBudget} across ${tripData.days} days
 - Daily budget: approximately ${Math.round(tripData.totalBudget / tripData.days)} per day
-- Include transport from ${tripData.fromLocation} to ${tripData.destination}
+- Include local transportation and activities
 
 Activity type guidelines:
 - Use 'restaurant' for dining experiences
@@ -84,8 +91,8 @@ Activity type guidelines:
 - Use 'cultural' for cultural shows, festivals
 
 Include 4-6 activities per day with realistic timing. Provide specific place names and locations in ${tripData.destination}.
-Make sure all costs are realistic and add up correctly in the estimatedCost section.
-Focus on authentic local experiences and popular attractions.
+Make sure all costs are realistic for ${tripData.destination} and add up correctly in the estimatedCost section.
+Focus on authentic local experiences and popular attractions specific to ${tripData.destination}.
 
 IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional text.
 `
@@ -148,7 +155,6 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
 
   // Ensure all required fields exist
   const enhanced = {
-    fromLocation: itinerary.fromLocation || tripData.fromLocation,
     destination: itinerary.destination || tripData.destination,
     startDate: itinerary.startDate || tripData.startDate,
     endDate: itinerary.endDate || tripData.endDate,
@@ -215,12 +221,11 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
 }
 
 const generateFallbackItinerary = (tripData) => {
-  console.log('Generating fallback itinerary for:', `${tripData.fromLocation} to ${tripData.destination}`)
+  console.log('Generating fallback itinerary for:', tripData.destination)
 
   const dailyBudget = Math.round(tripData.totalBudget / tripData.days)
 
   return {
-    fromLocation: tripData.fromLocation,
     destination: tripData.destination,
     startDate: tripData.startDate,
     endDate: tripData.endDate,
