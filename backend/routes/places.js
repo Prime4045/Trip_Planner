@@ -1,13 +1,33 @@
 const express = require('express')
 const { 
+  autocompleteSearch,
   textSearchPlaces, 
   nearbySearchPlaces, 
   getPlaceDetails, 
-  getPlacePhotos, 
-  autocompleteSearch 
+  getPlacePhotos
 } = require('../services/rapidApiPlacesService')
 
 const router = express.Router()
+
+// Autocomplete search for destinations
+router.get('/autocomplete', async (req, res) => {
+  try {
+    const { input } = req.query
+
+    if (!input || input.length < 2) {
+      return res.json([])
+    }
+
+    console.log('Autocomplete request for:', input)
+    const suggestions = await autocompleteSearch(input)
+    console.log('Returning suggestions:', suggestions.length)
+    
+    res.json(suggestions)
+  } catch (error) {
+    console.error('Autocomplete error:', error)
+    res.status(500).json({ message: 'Server error with autocomplete' })
+  }
+})
 
 // Text search places
 router.get('/search', async (req, res) => {
@@ -40,23 +60,6 @@ router.get('/nearby', async (req, res) => {
   } catch (error) {
     console.error('Nearby places error:', error)
     res.status(500).json({ message: 'Server error searching nearby places' })
-  }
-})
-
-// Autocomplete search
-router.get('/autocomplete', async (req, res) => {
-  try {
-    const { input, location } = req.query
-
-    if (!input) {
-      return res.status(400).json({ message: 'Input parameter is required' })
-    }
-
-    const suggestions = await autocompleteSearch(input, location)
-    res.json(suggestions)
-  } catch (error) {
-    console.error('Autocomplete error:', error)
-    res.status(500).json({ message: 'Server error with autocomplete' })
   }
 })
 

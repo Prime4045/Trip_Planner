@@ -3,9 +3,28 @@ const { body, validationResult } = require('express-validator')
 const { requiresAuth } = require('express-openid-connect')
 const Trip = require('../models/Trip')
 const User = require('../models/User')
-const { generateItinerary } = require('../services/geminiService')
+const { generateItinerary, getDestinationInfo, enhanceWithRealPhotos } = require('../services/geminiService')
 
 const router = express.Router()
+
+// Get destination information (interests and minimum budget)
+router.post('/destination-info', async (req, res) => {
+  try {
+    const { destination } = req.body
+    
+    if (!destination) {
+      return res.status(400).json({ message: 'Destination is required' })
+    }
+
+    console.log('Getting destination info for:', destination)
+    const destinationInfo = await getDestinationInfo(destination)
+    
+    res.json(destinationInfo)
+  } catch (error) {
+    console.error('Destination info error:', error)
+    res.status(500).json({ message: 'Server error getting destination info' })
+  }
+})
 
 // Get all user trips
 router.get('/', requiresAuth(), async (req, res) => {
@@ -85,8 +104,9 @@ router.post('/', requiresAuth(), [
 
     console.log('Itinerary generated successfully')
 
-    // For now, use the AI itinerary directly since Google Places API is not available
-    const enrichedItinerary = aiItinerary
+    // Enhance itinerary with real photos from RapidAPI
+    console.log('Enhancing itinerary with real photos...')
+    const enrichedItinerary = await enhanceWithRealPhotos(aiItinerary)
 
     // Create trip
     const trip = new Trip({
@@ -98,7 +118,7 @@ router.post('/', requiresAuth(), [
       days,
       totalBudget,
       preferences,
-      itinerary: aiItinerary
+      itinerary: enrichedItinerary
     })
 
     await trip.save()
