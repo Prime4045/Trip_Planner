@@ -17,7 +17,6 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 const Header = () => {
   const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth()
   const { currency, changeCurrency } = useCurrency()
-  const { currency, changeCurrency } = useCurrency()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -53,16 +52,15 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => {
               if (item.auth && !isAuthenticated) return null
-              
+
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-blue-600 ${
-                    isActive(item.href) 
-                      ? 'text-blue-600' 
-                      : 'text-gray-600'
-                  }`}
+                  className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-blue-600 ${isActive(item.href)
+                    ? 'text-blue-600'
+                    : 'text-gray-600'
+                    }`}
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.name}</span>
@@ -82,14 +80,14 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => changeCurrency('INR')}
                   className={currency === 'INR' ? 'bg-blue-50' : ''}
                 >
                   <span className="mr-2">₹</span>
                   Indian Rupee (INR)
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => changeCurrency('USD')}
                   className={currency === 'USD' ? 'bg-blue-50' : ''}
                 >
@@ -152,7 +150,7 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
+              <Button
                 onClick={() => loginWithRedirect()}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
@@ -183,16 +181,15 @@ const Header = () => {
             <div className="space-y-1 px-2 pb-3 pt-2">
               {navigation.map((item) => {
                 if (item.auth && !isAuthenticated) return null
-                
+
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium ${
-                      isActive(item.href)
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                    className={`flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium ${isActive(item.href)
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <item.icon className="h-4 w-4" />

@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTrip } from '../context/TripContext'
 import { useCurrency } from '../context/CurrencyContext'
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  MapPin, 
-  Calendar, 
-  Users, 
+import {
+  ArrowLeft,
+  ArrowRight,
+  MapPin,
+  Calendar,
+  Users,
   Heart,
   Star,
   Clock,
@@ -33,7 +33,7 @@ const CreateTrip = () => {
   const navigate = useNavigate()
   const { createTrip, generating } = useTrip()
   const { formatCurrency } = useCurrency()
-  
+
   const [currentStep, setCurrentStep] = useState(1)
   const [tripData, setTripData] = useState({
     fromLocation: '',
@@ -105,7 +105,7 @@ const CreateTrip = () => {
     setTripData(prev => ({ ...prev, destination }))
     setSearchQuery(destination)
     setSuggestions([])
-    
+
     // Fetch destination info from Gemini
     setLoadingDestinationInfo(true)
     try {
@@ -117,13 +117,13 @@ const CreateTrip = () => {
         credentials: 'include',
         body: JSON.stringify({ destination })
       })
-      
+
       if (response.ok) {
         const info = await response.json()
         console.log('Destination info:', info)
         setDestinationInfo(info)
-        setTripData(prev => ({ 
-          ...prev, 
+        setTripData(prev => ({
+          ...prev,
           totalBudget: info.minimumBudget.toString(),
           interests: [] // Reset interests to show destination-specific ones
         }))
@@ -133,7 +133,7 @@ const CreateTrip = () => {
     } finally {
       setLoadingDestinationInfo(false)
     }
-    
+
     setCurrentStep(2)
   }
 
@@ -208,16 +208,16 @@ const CreateTrip = () => {
           disabled={disabled}
           className={`
             h-10 w-10 rounded-lg text-sm font-medium transition-all
-            ${disabled 
-              ? 'text-gray-300 cursor-not-allowed' 
+            ${disabled
+              ? 'text-gray-300 cursor-not-allowed'
               : 'text-gray-700 hover:bg-blue-100 cursor-pointer'
             }
-            ${selected 
-              ? 'bg-blue-600 text-white hover:bg-blue-700' 
+            ${selected
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
               : ''
             }
-            ${inRange 
-              ? 'bg-blue-100 text-blue-700' 
+            ${inRange
+              ? 'bg-blue-100 text-blue-700'
               : ''
             }
           `}
@@ -333,8 +333,8 @@ const CreateTrip = () => {
               <div key={step.id} className="flex items-center">
                 <div className={`
                   w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300
-                  ${currentStep >= step.id 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg' 
+                  ${currentStep >= step.id
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
                     : 'bg-gray-200 text-gray-500'
                   }
                 `}>
@@ -386,7 +386,7 @@ const CreateTrip = () => {
                   className="h-14 text-lg pl-12 rounded-full border-2 border-gray-200 focus:border-blue-500"
                 />
                 <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                
+
                 {suggestions.length > 0 && (
                   <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-2 z-10">
                     {suggestions.map((suggestion, index) => (
@@ -417,7 +417,7 @@ const CreateTrip = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Card 
+                      <Card
                         className="cursor-pointer card-hover overflow-hidden"
                         onClick={() => selectDestination(`${dest.name}, ${dest.country}`)}
                       >
@@ -511,7 +511,7 @@ const CreateTrip = () => {
               )}
 
               <div className="text-center">
-                <button 
+                <button
                   onClick={() => {
                     setUnknownDates(!unknownDates)
                     if (!unknownDates) {
@@ -571,11 +571,10 @@ const CreateTrip = () => {
                   {tripTypes.map((type) => (
                     <Card
                       key={type.id}
-                      className={`cursor-pointer transition-all duration-200 ${
-                        tripData.tripType === type.id
+                      className={`cursor-pointer transition-all duration-200 ${tripData.tripType === type.id
                           ? 'ring-2 ring-blue-500 bg-blue-50'
                           : 'hover:shadow-md'
-                      }`}
+                        }`}
                       onClick={() => setTripData(prev => ({ ...prev, tripType: type.id }))}
                     >
                       <CardContent className="p-4 text-center">
@@ -677,11 +676,10 @@ const CreateTrip = () => {
                     {destinationInfo.interests.map((interest, index) => (
                       <Card
                         key={index}
-                        className={`cursor-pointer transition-all duration-200 ${
-                          tripData.interests.includes(interest)
+                        className={`cursor-pointer transition-all duration-200 ${tripData.interests.includes(interest)
                             ? 'ring-2 ring-blue-500 bg-blue-50'
                             : 'hover:shadow-md'
-                        }`}
+                          }`}
                         onClick={() => toggleInterest(interest)}
                       >
                         <CardContent className="p-4 text-center">
@@ -747,14 +745,14 @@ const CreateTrip = () => {
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-ping opacity-20" />
                 </div>
-                
+
                 <h3 className="text-3xl font-bold text-gray-900 mb-4">
                   Generating recommendations
                 </h3>
                 <p className="text-gray-600 mb-8">
                   We're whipping up all your recommendations in one place.
                 </p>
-                
+
                 <div className="flex items-center justify-center space-x-2">
                   <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
                   <span className="text-blue-600">Creating your perfect trip...</span>
@@ -819,23 +817,22 @@ const CreateTrip = () => {
                               </Badge>
                             </div>
                           </div>
-                          
+
                           <CardContent className="p-6">
                             <h5 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
                               {activity.name}
                             </h5>
-                            
+
                             {activity.rating && (
                               <div className="flex items-center space-x-1 mb-3">
                                 <div className="flex items-center">
                                   {[...Array(5)].map((_, i) => (
                                     <Star
                                       key={i}
-                                      className={`h-4 w-4 ${
-                                        i < Math.floor(activity.rating)
+                                      className={`h-4 w-4 ${i < Math.floor(activity.rating)
                                           ? 'text-yellow-400 fill-current'
                                           : 'text-gray-300'
-                                      }`}
+                                        }`}
                                     />
                                   ))}
                                 </div>
@@ -844,11 +841,11 @@ const CreateTrip = () => {
                                 </span>
                               </div>
                             )}
-                            
+
                             <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
                               {activity.description}
                             </p>
-                            
+
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center space-x-2 text-sm text-gray-500">
                                 <Clock className="h-4 w-4" />
@@ -859,7 +856,7 @@ const CreateTrip = () => {
                                 <span>{formatCurrency(activity.cost)}</span>
                               </div>
                             </div>
-                            
+
                             {activity.googleMapsUrl && (
                               <Button
                                 size="sm"

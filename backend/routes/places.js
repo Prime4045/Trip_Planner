@@ -1,10 +1,19 @@
 const express = require('express')
+<<<<<<< Updated upstream
 const { 
   autocompleteSearch,
   textSearchPlaces, 
   nearbySearchPlaces, 
   getPlaceDetails, 
   getPlacePhotos
+=======
+const {
+  textSearchPlaces,
+  nearbySearchPlaces,
+  getPlaceDetails,
+  getPlacePhotos,
+  autocompleteSearch
+>>>>>>> Stashed changes
 } = require('../services/rapidApiPlacesService')
 
 const router = express.Router()
@@ -68,7 +77,7 @@ router.get('/details/:placeId', async (req, res) => {
   try {
     const { placeId } = req.params
     const details = await getPlaceDetails(placeId)
-    
+
     if (!details) {
       return res.status(404).json({ message: 'Place not found' })
     }
@@ -85,7 +94,7 @@ router.get('/photos/:placeId', async (req, res) => {
   try {
     const { placeId } = req.params
     const photos = await getPlacePhotos(placeId)
-    
+
     res.json({ photos })
   } catch (error) {
     console.error('Place photos error:', error)
