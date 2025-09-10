@@ -177,17 +177,24 @@ const Dashboard = () => {
                   transition={{ delay: index * 0.1 }}
                 >
                   <Card className="card-hover border-0 shadow-lg overflow-hidden">
-                    <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
-                      <div className="absolute inset-0 bg-black/20" />
+                    <div className="h-48 relative overflow-hidden">
+                      {trip.destination && (
+                        <img
+                          src={`https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80`}
+                          alt={trip.destination}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-purple-600/80" />
                       <div className="absolute bottom-4 left-4 text-white">
-                        <h3 className="text-xl font-bold">{trip.fromLocation} → {trip.destination}</h3>
+                        <h3 className="text-xl font-bold">→ {trip.destination}</h3>
                         <p className="text-blue-100">{trip.days} days • {formatCurrency(trip.totalBudget)}</p>
                       </div>
                       <div className="absolute top-4 right-4">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteTrip(trip._id || trip.id)}
+                          onClick={() => deleteTrip(trip._id)}
                           className="text-white hover:bg-white/20"
                         >
                           <Trash2 className="h-4 w-4" />

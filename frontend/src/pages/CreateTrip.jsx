@@ -672,24 +672,19 @@ const CreateTrip = () => {
 
               <div className="max-w-2xl mx-auto space-y-6">
                 {destinationInfo && destinationInfo.interests ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="flex flex-wrap gap-3 justify-center">
                     {destinationInfo.interests.map((interest, index) => (
-                      <Card
+                      <button
                         key={index}
-                        className={`cursor-pointer transition-all duration-200 ${tripData.interests.includes(interest)
-                            ? 'ring-2 ring-blue-500 bg-blue-50'
-                            : 'hover:shadow-md'
-                          }`}
+                        className={`px-6 py-3 rounded-full border-2 transition-all duration-200 font-medium ${
+                          tripData.interests.includes(interest)
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:shadow-md'
+                        }`}
                         onClick={() => toggleInterest(interest)}
                       >
-                        <CardContent className="p-4 text-center">
-                          <div className="text-2xl mb-2">🎯</div>
-                          <div className="font-medium text-sm">{interest}</div>
-                          {tripData.interests.includes(interest) && (
-                            <Check className="h-4 w-4 text-blue-600 mx-auto mt-2" />
-                          )}
-                        </CardContent>
-                      </Card>
+                        {interest}
+                      </button>
                     ))}
                   </div>
                 ) : (
@@ -705,24 +700,30 @@ const CreateTrip = () => {
                     value={customInterest}
                     onChange={(e) => setCustomInterest(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addCustomInterest()}
+                    className="rounded-full"
                   />
-                  <Button onClick={addCustomInterest}>Add</Button>
+                  <Button 
+                    onClick={addCustomInterest}
+                    className="rounded-full px-6"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add interest
+                  </Button>
                 </div>
 
                 {tripData.interests.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 justify-center">
                     {tripData.interests.map((interest, index) => (
-                      <Badge
+                      <button
                         key={index}
-                        variant="secondary"
-                        className="flex items-center space-x-1"
+                        className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center space-x-2 hover:bg-blue-200 transition-colors"
+                        onClick={() => toggleInterest(interest)}
                       >
                         <span>{interest}</span>
                         <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => toggleInterest(interest)}
+                          className="h-3 w-3"
                         />
-                      </Badge>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -805,73 +806,86 @@ const CreateTrip = () => {
                               <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                                 <span className="text-4xl">{getActivityIcon(activity.type)}</span>
                               </div>
-                            )}
+                    <h2 className="text-4xl font-bold text-gray-900">{generatedTrip.destination}</h2>
                             <div className="absolute top-3 right-3">
                               <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
                                 <Check className="h-4 w-4 text-green-600" />
                               </div>
                             </div>
                             <div className="absolute bottom-3 left-3">
-                              <Badge className="bg-white/90 text-gray-700">
+                <div className="space-y-12">
                                 {activity.time}
-                              </Badge>
-                            </div>
-                          </div>
+                    <motion.div 
+                      key={dayIndex} 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: dayIndex * 0.1 }}
+                      className="space-y-6"
+                    >
+                      <div className="text-center mb-8">
+                        <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 shadow-lg">
 
                           <CardContent className="p-6">
-                            <h5 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
+                        <h4 className="text-3xl font-bold text-gray-900 mb-2">{day.title}</h4>
+                        <p className="text-gray-600">Day {day.day} of {generatedTrip.totalDays}</p>
                               {activity.name}
                             </h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                              <CardContent className="p-6">
+                                <h5 className="font-bold text-xl text-gray-900 mb-3 line-clamp-2 leading-tight">
+                            key={actIndex}
+                                </h5>
+                            animate={{ opacity: 1, scale: 1 }}
+                                {activity.rating && (
+                                  <div className="flex items-center space-x-2 mb-4">
+                                    <div className="flex items-center">
+                                      {[...Array(5)].map((_, i) => (
+                                        <Star
+                                          key={i}
+                                          className={`h-4 w-4 ${i < Math.floor(activity.rating)
+                                              ? 'text-yellow-400 fill-current'
+                                              : 'text-gray-300'
+                                            }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <span className="text-sm text-gray-600 font-semibold">
+                                      {activity.rating}
+                                    </span>
+                                  </div>
+                                )}
 
-                            {activity.rating && (
-                              <div className="flex items-center space-x-1 mb-3">
-                                <div className="flex items-center">
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className={`h-4 w-4 ${i < Math.floor(activity.rating)
-                                          ? 'text-yellow-400 fill-current'
-                                          : 'text-gray-300'
-                                        }`}
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-sm text-gray-600 font-medium">
-                                  {activity.rating}
+                                <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+                                  {activity.description}
+                                </p>
+
+                                <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                                    <Clock className="h-4 w-4" />
+                                    <span className="font-medium">{activity.duration}</span>
+                                  </div>
+                                  <div className="flex items-center space-x-2 text-lg font-bold text-gray-900">
+                                    <DollarSign className="h-5 w-5" />
+                                    <span>{formatCurrency(activity.cost)}</span>
+                                  </div>
                                 </span>
-                              </div>
                             )}
-
-                            <p className="text-gray-600 mb-4 line-clamp-3 text-sm">
-                              {activity.description}
-                            </p>
-
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                <Clock className="h-4 w-4" />
-                                <span>{activity.duration}</span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-sm font-bold text-gray-900">
-                                <DollarSign className="h-4 w-4" />
-                                <span>{formatCurrency(activity.cost)}</span>
-                              </div>
-                            </div>
-
-                            {activity.googleMapsUrl && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="w-full"
-                                onClick={() => window.open(activity.googleMapsUrl, '_blank')}
-                              >
-                                <Navigation className="h-4 w-4 mr-2" />
-                                View on Maps
-                              </Button>
-                            )}
-                          </CardContent>
+                                {activity.googleMapsUrl && (
+                                  <Button
+                                    size="sm"
+                                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                                    onClick={() => window.open(activity.googleMapsUrl, '_blank')}
+                                  >
+                                    <Navigation className="h-4 w-4 mr-2" />
+                                    View on Maps
+                                  </Button>
+                                )}
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         </Card>
                       ))}
-                    </div>
+                    </motion.div>
                   </div>
                 ))}
               </div>
