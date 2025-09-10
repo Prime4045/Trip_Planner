@@ -9,7 +9,7 @@ const getDestinationInfo = async (destination) => {
     if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'demo-key') {
       console.log('Using fallback destination info - Gemini API key not configured')
       return {
-        interests: ['Must-see Attractions', 'Great Food', 'Hidden Gems', 'Tours & Experiences', 'Art and Culture', 'Adventure and Sports'],
+        interests: ['Culture', 'Food', 'Shopping', 'Adventure', 'Nature', 'Photography'],
         minimumBudget: 50000,
         currency: 'INR'
       }
@@ -21,16 +21,16 @@ const getDestinationInfo = async (destination) => {
 Provide destination information for ${destination} in JSON format:
 
 {
-  "interests": ["list of 8-10 popular activities/interests specific to this destination - use descriptive names without emojis"],
+  "interests": ["list of 8-10 popular activities/interests specific to this destination"],
   "minimumBudget": minimum_budget_per_person_in_INR_for_decent_trip,
   "currency": "INR",
   "description": "brief description of the destination"
 }
 
-Make the interests specific to ${destination} and use professional naming. For example:
-- If it's Paris: ["Must-see Attractions", "French Cuisine", "Fashion Shopping", "Historic Architecture", "Seine River Cruise", "Café Culture", "Photography", "Wine Tasting"]
+Make the interests specific to ${destination}. For example:
+- If it's Paris: ["Art Museums", "French Cuisine", "Fashion Shopping", "Historic Architecture", "Seine River Cruise", "Café Culture", "Photography", "Wine Tasting"]
 - If it's Tokyo: ["Sushi & Ramen", "Anime Culture", "Traditional Temples", "Modern Technology", "Cherry Blossoms", "Shopping Districts", "Karaoke", "Hot Springs"]
-- If it's Rajasthan: ["Royal Heritage", "Desert Safari", "Traditional Crafts", "Rajasthani Cuisine", "Camel Experiences", "Folk Performances", "Heritage Hotels", "Photography"]
+- If it's Rajasthan: ["Royal Palaces", "Desert Safari", "Traditional Crafts", "Rajasthani Cuisine", "Camel Rides", "Folk Music", "Heritage Hotels", "Photography"]
 
 Provide realistic minimum budget in INR for a decent trip to ${destination}.
 
