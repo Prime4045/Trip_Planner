@@ -130,7 +130,11 @@ export const TripProvider = ({ children }) => {
   const deleteTrip = async (tripId) => {
     try {
       console.log('Deleting trip:', tripId)
-      const response = await fetch(`http://localhost:5000/api/trips/${tripId}`, {
+      
+      // Make sure we're using the correct ID format
+      const id = tripId._id || tripId.id || tripId
+      
+      const response = await fetch(`http://localhost:5000/api/trips/${id}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -139,13 +143,23 @@ export const TripProvider = ({ children }) => {
       })
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Delete response error:', errorData)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      setTrips(prev => prev.filter(trip => (trip._id || trip.id) !== tripId))
-      if (currentTrip?.id === tripId) {
+      // Update the trips list by removing the deleted trip
+      setTrips(prev => prev.filter(trip => {
+        const currentTripId = trip._id || trip.id
+        return currentTripId !== id
+      }))
+      
+      // Clear current trip if it was deleted
+      if (currentTrip && (currentTrip._id || currentTrip.id) === id) {
         setCurrentTrip(null)
       }
+      
+      console.log('Trip deleted successfully')
     } catch (error) {
       console.error('Error deleting trip:', error)
       throw error

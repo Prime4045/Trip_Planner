@@ -54,6 +54,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/tripplann
 
 // Import models
 const User = require('./models/User')
+const Trip = require('./models/Trip')
 
 // Middleware to sync user with database
 const syncUserToDatabase = async (req, res, next) => {

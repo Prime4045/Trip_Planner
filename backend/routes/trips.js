@@ -179,15 +179,21 @@ router.put('/:id', requiresAuth(), [
 // Delete trip
 router.delete('/:id', requiresAuth(), async (req, res) => {
   try {
+    console.log('Delete request for trip ID:', req.params.id)
+    console.log('User ID:', req.user._id)
+    
     const trip = await Trip.findOneAndDelete({
       _id: req.params.id,
       userId: req.user._id
     })
 
     if (!trip) {
+      console.log('Trip not found for deletion')
       return res.status(404).json({ message: 'Trip not found' })
     }
 
+    console.log('Trip deleted successfully:', trip._id)
+    
     // Update user stats
     await User.findByIdAndUpdate(req.user._id, {
       $inc: {
@@ -200,6 +206,7 @@ router.delete('/:id', requiresAuth(), async (req, res) => {
     res.json({ message: 'Trip deleted successfully' })
   } catch (error) {
     console.error('Delete trip error:', error)
+    console.error('Error details:', error.message)
     res.status(500).json({ message: 'Server error deleting trip' })
   }
 })
