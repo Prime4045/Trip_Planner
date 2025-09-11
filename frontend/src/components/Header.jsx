@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCurrency } from '../context/CurrencyContext'
 import { motion } from 'framer-motion'
-import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle, DollarSign } from 'lucide-react'
+import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle, DollarSign, ChevronDown } from 'lucide-react'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -16,8 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const Header = () => {
   const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth()
-  const { currency, changeCurrency } = useCurrency()
-  const { currency, changeCurrency } = useCurrency()
+  const { currency, changeCurrency, getCurrencySymbol } = useCurrency()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -76,9 +75,10 @@ const Header = () => {
             {/* Currency Switcher */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center space-x-1">
-                  <DollarSign className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  <span className="font-medium">{getCurrencySymbol()}</span>
                   <span>{currency}</span>
+                  <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -95,6 +95,20 @@ const Header = () => {
                 >
                   <span className="mr-2">$</span>
                   US Dollar (USD)
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => changeCurrency('EUR')}
+                  className={currency === 'EUR' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">€</span>
+                  Euro (EUR)
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => changeCurrency('GBP')}
+                  className={currency === 'GBP' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">£</span>
+                  British Pound (GBP)
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

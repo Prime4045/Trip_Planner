@@ -9,7 +9,7 @@ const getDestinationInfo = async (destination) => {
     if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'demo-key') {
       console.log('Using fallback destination info - Gemini API key not configured')
       return {
-        interests: ['Culture', 'Food', 'Shopping', 'Adventure', 'Nature', 'Photography'],
+        interests: getLocationSpecificInterests(destination),
         minimumBudget: 50000,
         currency: 'INR'
       }
@@ -18,19 +18,19 @@ const getDestinationInfo = async (destination) => {
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
     const prompt = `
-Provide destination information for ${destination} in JSON format:
+Provide destination information for ${destination} in JSON format with location-specific interests:
 
 {
-  "interests": ["list of 8-10 popular activities/interests specific to this destination"],
+  "interests": ["list of 6-8 popular activities/interests specific to this destination - no emojis, clean names only"],
   "minimumBudget": minimum_budget_per_person_in_INR_for_decent_trip,
   "currency": "INR",
   "description": "brief description of the destination"
 }
 
-Make the interests specific to ${destination}. For example:
-- If it's Paris: ["Art Museums", "French Cuisine", "Fashion Shopping", "Historic Architecture", "Seine River Cruise", "Café Culture", "Photography", "Wine Tasting"]
-- If it's Tokyo: ["Sushi & Ramen", "Anime Culture", "Traditional Temples", "Modern Technology", "Cherry Blossoms", "Shopping Districts", "Karaoke", "Hot Springs"]
-- If it's Rajasthan: ["Royal Palaces", "Desert Safari", "Traditional Crafts", "Rajasthani Cuisine", "Camel Rides", "Folk Music", "Heritage Hotels", "Photography"]
+Make the interests specific to ${destination}. Examples:
+- Paris: ["Art Museums", "French Cuisine", "Fashion Shopping", "Historic Architecture", "Seine River Cruise", "Café Culture"]
+- Tokyo: ["Sushi & Ramen", "Anime Culture", "Traditional Temples", "Cherry Blossoms", "Shopping Districts", "Karaoke"]
+- Istanbul: ["Hagia Sophia & Blue Mosque", "Turkish Cuisine & Delight", "Bosphorus Cruise", "Grand Bazaar & Spice Market", "Byzantine & Ottoman History", "Turkish Coffee Culture"]
 
 Provide realistic minimum budget in INR for a decent trip to ${destination}.
 
@@ -54,13 +54,31 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional te
   } catch (error) {
     console.error('Error getting destination info:', error.message)
     return {
-      interests: ['Culture', 'Food', 'Shopping', 'Adventure', 'Nature', 'Photography'],
+      interests: getLocationSpecificInterests(destination),
       minimumBudget: 50000,
       currency: 'INR'
     }
   }
 }
 
+// Helper function to get location-specific interests as fallback
+const getLocationSpecificInterests = (destination) => {
+  const dest = destination.toLowerCase()
+  
+  if (dest.includes('istanbul') || dest.includes('turkey')) {
+    return ['Hagia Sophia & Blue Mosque', 'Turkish Cuisine & Delight', 'Bosphorus Cruise', 'Grand Bazaar & Spice Market', 'Byzantine & Ottoman History', 'Turkish Coffee Culture']
+  } else if (dest.includes('paris') || dest.includes('france')) {
+    return ['Art Museums', 'French Cuisine', 'Fashion Shopping', 'Historic Architecture', 'Seine River Cruise', 'Café Culture']
+  } else if (dest.includes('tokyo') || dest.includes('japan')) {
+    return ['Sushi & Ramen', 'Anime Culture', 'Traditional Temples', 'Cherry Blossoms', 'Shopping Districts', 'Karaoke']
+  } else if (dest.includes('goa') || dest.includes('india')) {
+    return ['Beach Activities', 'Seafood Cuisine', 'Portuguese Heritage', 'Water Sports', 'Nightlife', 'Spice Plantations']
+  } else if (dest.includes('italy') || dest.includes('rome')) {
+    return ['Renaissance Art', 'Italian Cuisine', 'Wine Tasting', 'Historic Architecture', 'Fashion Shopping', 'Pasta Making']
+  } else {
+    return ['Culture & Heritage', 'Local Cuisine', 'Shopping', 'Adventure Activities', 'Nature & Sightseeing', 'Photography']
+  }
+}
 const generateItinerary = async (tripData) => {
   try {
     // Check if API key is available

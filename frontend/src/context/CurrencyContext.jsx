@@ -17,20 +17,30 @@ export const CurrencyProvider = ({ children }) => {
   // Exchange rates (approximate)
   const exchangeRates = {
     INR: 1,
-    USD: 0.012 // 1 INR = 0.012 USD (approximate)
+    USD: 0.012, // 1 INR = 0.012 USD
+    EUR: 0.011, // 1 INR = 0.011 EUR
+    GBP: 0.0095 // 1 INR = 0.0095 GBP
+  }
+
+  // Currency symbols mapping
+  const currencySymbols = {
+    INR: '₹',
+    USD: '$',
+    EUR: '€',
+    GBP: '£'
   }
 
   useEffect(() => {
     // Load saved currency from localStorage
     const savedCurrency = localStorage.getItem('preferred-currency')
-    if (savedCurrency && ['INR', 'USD'].includes(savedCurrency)) {
+    if (savedCurrency && Object.keys(exchangeRates).includes(savedCurrency)) {
       setCurrency(savedCurrency)
       setExchangeRate(exchangeRates[savedCurrency])
     }
   }, [])
 
   const changeCurrency = (newCurrency) => {
-    if (['INR', 'USD'].includes(newCurrency)) {
+    if (Object.keys(exchangeRates).includes(newCurrency)) {
       setCurrency(newCurrency)
       setExchangeRate(exchangeRates[newCurrency])
       localStorage.setItem('preferred-currency', newCurrency)
@@ -40,17 +50,18 @@ export const CurrencyProvider = ({ children }) => {
   const formatCurrency = (amount) => {
     if (!amount || isNaN(amount)) return 'N/A'
     
-    const convertedAmount = currency === 'USD' ? amount * exchangeRate : amount
+    const convertedAmount = currency === 'INR' ? amount : amount * exchangeRate
+    const symbol = currencySymbols[currency]
     
-    if (currency === 'USD') {
-      return `$${convertedAmount.toFixed(2)}`
+    if (currency === 'INR') {
+      return `${symbol}${Math.round(convertedAmount).toLocaleString('en-IN')}`
     } else {
-      return `₹${Math.round(convertedAmount).toLocaleString('en-IN')}`
+      return `${symbol}${convertedAmount.toFixed(2)}`
     }
   }
 
   const getCurrencySymbol = () => {
-    return currency === 'USD' ? '$' : '₹'
+    return currencySymbols[currency] || '₹'
   }
 
   const value = {
@@ -58,7 +69,8 @@ export const CurrencyProvider = ({ children }) => {
     exchangeRate,
     changeCurrency,
     formatCurrency,
-    getCurrencySymbol
+    getCurrencySymbol,
+    currencySymbols
   }
 
   return (

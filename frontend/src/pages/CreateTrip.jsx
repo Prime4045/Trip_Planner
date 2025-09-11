@@ -88,7 +88,9 @@ const CreateTrip = () => {
         setSearchQuery(query)
         if (query.length > 2) {
             try {
-                const response = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(query)}`)
+                const response = await fetch(`http://localhost:5000/api/places/autocomplete?input=${encodeURIComponent(query)}`, {
+                    credentials: 'include'
+                })
                 const data = await response.json()
                 console.log('Autocomplete response:', data)
                 setSuggestions(data.slice(0, 5))
@@ -109,7 +111,7 @@ const CreateTrip = () => {
         // Fetch destination info from Gemini
         setLoadingDestinationInfo(true)
         try {
-            const response = await fetch('/api/trips/destination-info', {
+            const response = await fetch('http://localhost:5000/api/trips/destination-info', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -672,24 +674,35 @@ const CreateTrip = () => {
 
                             <div className="max-w-2xl mx-auto space-y-6">
                                 {destinationInfo && destinationInfo.interests ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                         {destinationInfo.interests.map((interest, index) => (
-                                            <Card
+                                            <button
                                                 key={index}
-                                                className={`cursor-pointer transition-all duration-200 ${tripData.interests.includes(interest)
-                                                        ? 'ring-2 ring-blue-500 bg-blue-50'
-                                                        : 'hover:shadow-md'
-                                                    }`}
                                                 onClick={() => toggleInterest(interest)}
+                                                className={`
+                                                    relative p-4 rounded-xl border-2 transition-all duration-200 text-center
+                                                    ${tripData.interests.includes(interest)
+                                                        ? 'border-blue-500 bg-blue-50 shadow-md'
+                                                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                                                    }
+                                                `}
                                             >
-                                                <CardContent className="p-4 text-center">
-                                                    <div className="text-2xl mb-2">🎯</div>
-                                                    <div className="font-medium text-sm">{interest}</div>
-                                                    {tripData.interests.includes(interest) && (
-                                                        <Check className="h-4 w-4 text-blue-600 mx-auto mt-2" />
-                                                    )}
-                                                </CardContent>
-                                            </Card>
+                                                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-pink-400 to-purple-500">
+                                                    <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                                                        <div className="w-3 h-3 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full"></div>
+                                                    </div>
+                                                </div>
+                                                <div className="font-medium text-gray-900 text-sm leading-tight">
+                                                    {interest}
+                                                </div>
+                                                {tripData.interests.includes(interest) && (
+                                                    <div className="absolute top-2 right-2">
+                                                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                                            <Check className="h-3 w-3 text-white" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </button>
                                         ))}
                                     </div>
                                 ) : (

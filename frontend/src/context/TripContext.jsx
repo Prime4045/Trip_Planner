@@ -142,7 +142,7 @@ export const TripProvider = ({ children }) => {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      setTrips(prev => prev.filter(trip => trip.id !== tripId))
+      setTrips(prev => prev.filter(trip => (trip._id || trip.id) !== tripId))
       if (currentTrip?.id === tripId) {
         setCurrentTrip(null)
       }

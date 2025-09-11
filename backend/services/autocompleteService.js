@@ -1,7 +1,5 @@
 const axios = require('axios')
 
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || 'eff3a486camsh086d6b63316604dp1dd9dajsn34941bd67005'
-
 // Autocomplete search using the correct RapidAPI endpoint
 const autocompleteSearch = async (input) => {
   try {
@@ -12,7 +10,7 @@ const autocompleteSearch = async (input) => {
       url: 'https://google-place-autocomplete-and-place-info.p.rapidapi.com/maps/api/place/autocomplete/json',
       params: { input: input },
       headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
+        'x-rapidapi-key': 'eff3a486camsh086d6b63316604dp1dd9dajsn34941bd67005',
         'x-rapidapi-host': 'google-place-autocomplete-and-place-info.p.rapidapi.com'
       }
     }
