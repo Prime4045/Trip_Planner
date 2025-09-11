@@ -21,7 +21,7 @@ router.get('/autocomplete', async (req, res) => {
     console.log('Autocomplete request for:', input)
     const suggestions = await autocompleteSearch(input)
     console.log('Returning suggestions:', suggestions.length)
-    
+
     res.json(suggestions)
   } catch (error) {
     console.error('Autocomplete error:', error)

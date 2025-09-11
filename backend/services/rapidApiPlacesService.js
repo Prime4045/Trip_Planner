@@ -15,7 +15,7 @@ const rapidApiHeaders = {
 const autocompleteSearch = async (input) => {
   try {
     console.log('RapidAPI Autocomplete search for:', input)
-    
+
     const response = await axios.post(`${BASE_URL}/v1/places:autocomplete`, {
       input: input,
       locationBias: {
@@ -67,7 +67,7 @@ const autocompleteSearch = async (input) => {
 const textSearchPlaces = async (query, location) => {
   try {
     console.log('RapidAPI Text Search for:', query, 'in', location)
-    
+
     const response = await axios.post(`${BASE_URL}/v1/places:searchText`, {
       textQuery: `${query} in ${location}`,
       languageCode: "en",
@@ -118,7 +118,7 @@ const textSearchPlaces = async (query, location) => {
 const getPlaceDetails = async (placeId) => {
   try {
     console.log('RapidAPI Place Details for:', placeId)
-    
+
     const response = await axios.get(`${BASE_URL}/v1/places/${placeId}`, {
       headers: rapidApiHeaders
     })
@@ -153,16 +153,16 @@ const getPlaceDetails = async (placeId) => {
 const getPlacePhotos = async (placeId) => {
   try {
     console.log('RapidAPI Place Photos for:', placeId)
-    
+
     // First get place details to get photo references
     const placeDetails = await getPlaceDetails(placeId)
-    
+
     if (!placeDetails || !placeDetails.photos || placeDetails.photos.length === 0) {
       return []
     }
 
     const photoUrls = []
-    
+
     // Get up to 3 photos
     for (let i = 0; i < Math.min(3, placeDetails.photos.length); i++) {
       const photo = placeDetails.photos[i]
@@ -179,7 +179,7 @@ const getPlacePhotos = async (placeId) => {
               'X-RapidAPI-Host': RAPIDAPI_HOST
             }
           })
-          
+
           if (photoResponse.data && photoResponse.data.photoUri) {
             photoUrls.push(photoResponse.data.photoUri)
           }
@@ -200,7 +200,7 @@ const getPlacePhotos = async (placeId) => {
 const nearbySearchPlaces = async (latitude, longitude, radius = 5000, type = '') => {
   try {
     console.log('RapidAPI Nearby Search for:', latitude, longitude)
-    
+
     const response = await axios.post(`${BASE_URL}/v1/places:searchNearby`, {
       locationRestriction: {
         circle: {
