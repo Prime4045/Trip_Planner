@@ -71,7 +71,7 @@ const CreateTrip = () => {
         { name: 'New York City', country: 'United States', image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400' },
         { name: 'Rome', country: 'Italy', image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400' },
         { name: 'Istanbul', country: 'Turkey', image: 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=400' },
-        { name: 'Paris', country: 'France', image: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=400' },
+        { name: 'Paris', country: 'France', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400' },
         { name: 'Tokyo', country: 'Japan', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400' },
         { name: 'London', country: 'United Kingdom', image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400' }
     ]
@@ -574,8 +574,8 @@ const CreateTrip = () => {
                                         <Card
                                             key={type.id}
                                             className={`cursor-pointer transition-all duration-200 ${tripData.tripType === type.id
-                                                    ? 'ring-2 ring-blue-500 bg-blue-50'
-                                                    : 'hover:shadow-md'
+                                                ? 'ring-2 ring-blue-500 bg-blue-50'
+                                                : 'hover:shadow-md'
                                                 }`}
                                             onClick={() => setTripData(prev => ({ ...prev, tripType: type.id }))}
                                         >
@@ -843,8 +843,8 @@ const CreateTrip = () => {
                                                                         <Star
                                                                             key={i}
                                                                             className={`h-4 w-4 ${i < Math.floor(activity.rating)
-                                                                                    ? 'text-yellow-400 fill-current'
-                                                                                    : 'text-gray-300'
+                                                                                ? 'text-yellow-400 fill-current'
+                                                                                : 'text-gray-300'
                                                                                 }`}
                                                                         />
                                                                     ))}

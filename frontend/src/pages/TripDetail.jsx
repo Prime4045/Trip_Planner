@@ -3,11 +3,11 @@ import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTrip } from '../context/TripContext'
 import { useCurrency } from '../context/CurrencyContext'
-import { 
-  MapPin, 
-  Calendar, 
-  DollarSign, 
-  Clock, 
+import {
+  MapPin,
+  Calendar,
+  DollarSign,
+  Clock,
   ExternalLink,
   ArrowLeft,
   Star,
@@ -263,9 +263,9 @@ const TripDetail = () => {
                                       </div>
                                     </div>
                                   </div>
-                                  
+
                                   <p className="text-gray-600 mb-3">{activity.description}</p>
-                                  
+
                                   {activity.address && (
                                     <p className="text-sm text-gray-500 flex items-center mb-3">
                                       <MapPin className="h-4 w-4 mr-1" />
@@ -343,15 +343,16 @@ const TripDetail = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {Object.entries(currentTrip.itinerary.estimatedCost).map(([key, value]) => (
-                    if (key === 'currency') return null
-                    <div key={key} className="text-center p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-medium text-gray-600 capitalize">
-                        {key === 'total' ? 'Total Cost' : key}
+                  {Object.entries(currentTrip.itinerary.estimatedCost)
+                    .filter(([key]) => key !== 'currency')
+                    .map(([key, value]) => (
+                      <div key={key} className="text-center p-4 bg-gray-50 rounded-lg">
+                        <p className="text-sm font-medium text-gray-600 capitalize">
+                          {key === 'total' ? 'Total Cost' : key}
+                        </p>
                         <p className="text-xl font-bold text-gray-900">{formatCurrency(value)}</p>
-                      <p className="text-xl font-bold text-gray-900">${value}</p>
-                    </div>
-                  ))}
+                      </div>
+                    ))}
                 </div>
               </CardContent>
             </Card>
