@@ -48,7 +48,7 @@ export const CurrencyProvider = ({ children }) => {
   }
 
   const formatCurrency = (amount) => {
-    if (!amount || isNaN(amount)) return 'N/A'
+    if (!amount || isNaN(amount)) return '₹0'
     
     const convertedAmount = currency === 'INR' ? amount : amount * exchangeRate
     const symbol = currencySymbols[currency]

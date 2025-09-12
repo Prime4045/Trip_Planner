@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
+import { useCurrency } from '../context/CurrencyContext'
 import {
   User,
   Mail,
@@ -18,6 +19,7 @@ import { Badge } from '../components/ui/badge'
 const Profile = () => {
   const { user } = useAuth()
   const { trips } = useTrip()
+  const { formatCurrency } = useCurrency()
 
   const totalDays = trips.reduce((sum, trip) => sum + trip.days, 0)
   const totalCost = trips.reduce((sum, trip) => sum + (trip.itinerary?.estimatedCost?.total || 0), 0)
