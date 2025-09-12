@@ -258,7 +258,7 @@ const TripDetail = () => {
                                         </span>
                                         <span className="flex items-center">
                                           <DollarSign className="h-4 w-4 mr-1" />
-                                          {formatCurrency(activity.cost)}
+                                          {formatCurrency(activity.cost || 0)}
                                         </span>
                                       </div>
                                     </div>

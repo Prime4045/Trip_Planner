@@ -281,7 +281,7 @@ const Dashboard = () => {
                                             <img
                                                 src={getDestinationImage(trip.destination)}
                                                 alt={trip.destination}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                className="w-full h-full object-cover transition-transform duration-300"
                                             />
 
                                             {/* Delete Button */}
@@ -304,7 +304,7 @@ const Dashboard = () => {
                                                 </h3>
                                                 <div className="flex items-center text-white/90 text-sm">
                                                     <Calendar className="h-4 w-4 mr-1" />
-                                                    {trip.days} days • {formatCurrency(trip.totalBudget)}
+                                                    {trip.days} days • {formatCurrency(trip.totalBudget || trip.itinerary?.estimatedCost?.total || 0)}
                                                 </div>
                                             </div>
                                         </div>
@@ -319,7 +319,7 @@ const Dashboard = () => {
 
                                                 <div className="flex items-center text-sm text-gray-600">
                                                     <DollarSign className="h-4 w-4 mr-2" />
-                                                    Budget: {formatCurrency(trip.totalBudget)}
+                                                    Budget: {formatCurrency(trip.totalBudget || trip.itinerary?.estimatedCost?.total || 0)}
                                                 </div>
 
                                                 {trip.startDate && trip.endDate && (
