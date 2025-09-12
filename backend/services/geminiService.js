@@ -66,17 +66,21 @@ const getLocationSpecificInterests = (destination) => {
   const dest = destination.toLowerCase()
   
   if (dest.includes('istanbul') || dest.includes('turkey')) {
-    return ['Hagia Sophia & Blue Mosque', 'Turkish Cuisine & Delight', 'Bosphorus Cruise', 'Grand Bazaar & Spice Market', 'Byzantine & Ottoman History', 'Turkish Coffee Culture']
+    return ['Historic Mosques', 'Turkish Cuisine', 'Bosphorus Cruise', 'Grand Bazaar Shopping']
   } else if (dest.includes('paris') || dest.includes('france')) {
-    return ['Art Museums', 'French Cuisine', 'Fashion Shopping', 'Historic Architecture', 'Seine River Cruise', 'Café Culture']
+    return ['Art Museums', 'French Cuisine', 'Fashion Shopping', 'Historic Architecture']
   } else if (dest.includes('tokyo') || dest.includes('japan')) {
-    return ['Sushi & Ramen', 'Anime Culture', 'Traditional Temples', 'Cherry Blossoms', 'Shopping Districts', 'Karaoke']
+    return ['Traditional Temples', 'Japanese Cuisine', 'Shopping Districts', 'Cultural Experiences']
   } else if (dest.includes('goa') || dest.includes('india')) {
-    return ['Beach Activities', 'Seafood Cuisine', 'Portuguese Heritage', 'Water Sports', 'Nightlife', 'Spice Plantations']
+    return ['Beach Activities', 'Seafood Cuisine', 'Portuguese Heritage', 'Water Sports']
   } else if (dest.includes('italy') || dest.includes('rome')) {
-    return ['Renaissance Art', 'Italian Cuisine', 'Wine Tasting', 'Historic Architecture', 'Fashion Shopping', 'Pasta Making']
+    return ['Renaissance Art', 'Italian Cuisine', 'Historic Architecture', 'Fashion Shopping']
+  } else if (dest.includes('rajasthan') || dest.includes('jaipur')) {
+    return ['Royal Heritage', 'Rajasthani Cuisine', 'Art and Craft Shopping', 'Desert Safari']
+  } else if (dest.includes('bali') || dest.includes('indonesia')) {
+    return ['Beach Activities', 'Temple Visits', 'Local Cuisine', 'Adventure Sports']
   } else {
-    return ['Culture & Heritage', 'Local Cuisine', 'Shopping', 'Adventure Activities', 'Nature & Sightseeing', 'Photography']
+    return ['Culture & Heritage', 'Local Cuisine', 'Adventure Activities', 'Nature & Sightseeing']
   }
 }
 const generateItinerary = async (tripData) => {
