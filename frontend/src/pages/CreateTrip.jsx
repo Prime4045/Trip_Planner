@@ -83,6 +83,24 @@ const CreateTrip = () => {
         { id: 'family', title: 'Family Trip', icon: '👨‍👩‍👧‍👦', description: 'Family vacation' }
     ]
 
+    const defaultInterests = [
+        'Food',
+        'History',
+        'Nature',
+        'Shopping',
+        'Nightlife'
+    ]
+
+    // Shuffle function to randomize interests
+    const shuffleArray = (array) => {
+        const shuffled = [...array]
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const randomIndex = Math.floor(Math.random() * (i + 1)) // Calculate random index first
+                ;[shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]] // Swap using randomIndex
+        }
+        return shuffled
+    }
+
     // Auto-complete for destinations using RapidAPI
     const handleDestinationSearch = async (query) => {
         setSearchQuery(query)
@@ -305,16 +323,16 @@ const CreateTrip = () => {
 
     const getActivityIcon = (type) => {
         switch (type) {
-            case 'restaurant': return '🍽️'
-            case 'hotel': return '🏨'
-            case 'attraction': return '🎯'
-            case 'activity': return '🎪'
-            case 'transport': return '🚗'
-            case 'shopping': return '🛍️'
-            case 'nature': return '🌿'
-            case 'cultural': return '🏛️'
-            case 'spiritual': return '🕉️'
-            default: return '📍'
+            case 'restaurant': return ''
+            case 'hotel': return ''
+            case 'attraction': return ''
+            case 'activity': return ''
+            case 'transport': return ''
+            case 'shopping': return ''
+            case 'nature': return ''
+            case 'cultural': return ''
+            case 'spiritual': return ''
+            default: return ''
         }
     }
 
@@ -672,39 +690,40 @@ const CreateTrip = () => {
                                 </p>
                             </div>
 
-                            <div className="max-w-2xl mx-auto space-y-6">
+                            <div className="max-w-3xl mx-auto space-y-6">
                                 {destinationInfo && destinationInfo.interests ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                        {destinationInfo.interests.map((interest, index) => (
-                                            <button
-                                                key={index}
-                                                onClick={() => toggleInterest(interest)}
-                                                className={`
-                                                    relative p-4 rounded-xl border-2 transition-all duration-200 text-center
-                                                    ${tripData.interests.includes(interest)
-                                                        ? 'border-blue-500 bg-blue-50 shadow-md'
-                                                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-                                                    }
-                                                `}
-                                            >
-                                                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-pink-400 to-purple-500">
-                                                    <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                                                        <div className="w-3 h-3 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full"></div>
-                                                    </div>
-                                                </div>
-                                                <div className="font-medium text-gray-900 text-sm leading-tight">
-                                                    {interest}
-                                                </div>
-                                                {tripData.interests.includes(interest) && (
-                                                    <div className="absolute top-2 right-2">
-                                                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                                                            <Check className="h-3 w-3 text-white" />
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    (() => {
+                                        const uniqueInterests = [...new Set([...defaultInterests, ...destinationInfo.interests])]
+                                        const allInterests = shuffleArray(uniqueInterests)
+                                        return (
+                                            <div className="flex flex-wrap justify-center gap-4">
+                                                {allInterests.map((interest, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => toggleInterest(interest)}
+                                                        className={`
+                relative px-6 py-3 rounded-full border-2 transition-all duration-200
+                flex items-center justify-center text-base font-medium
+                ${tripData.interests.includes(interest)
+                                                                ? 'border-[#9333ea] bg-purple-50 text-[#9333ea] shadow-sm'
+                                                                : 'border-gray-300 bg-white text-gray-700 hover:border-[#9333ea] hover:text-[#9333ea] hover:shadow-sm'
+                                                            }
+              `}
+                                                    >
+                                                        <span>{interest}</span>
+
+                                                        {tripData.interests.includes(interest) && (
+                                                            <div className="absolute top-2 right-2">
+                                                                <div className="w-5 h-5 bg-[#9333ea] rounded-full flex items-center justify-center">
+                                                                    <Check className="h-3 w-3 text-white" />
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()
                                 ) : (
                                     <div className="text-center py-8">
                                         <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
@@ -712,6 +731,7 @@ const CreateTrip = () => {
                                     </div>
                                 )}
 
+                                {/* Add custom interest */}
                                 <div className="flex space-x-2">
                                     <Input
                                         placeholder="Add custom interest..."
@@ -722,6 +742,7 @@ const CreateTrip = () => {
                                     <Button onClick={addCustomInterest}>Add</Button>
                                 </div>
 
+                                {/* Selected badges */}
                                 {tripData.interests.length > 0 && (
                                     <div className="flex flex-wrap gap-2">
                                         {tripData.interests.map((interest, index) => (
@@ -740,6 +761,7 @@ const CreateTrip = () => {
                                     </div>
                                 )}
                             </div>
+
                         </motion.div>
                     )}
 
@@ -865,7 +887,6 @@ const CreateTrip = () => {
                                                                 <span>{activity.duration}</span>
                                                             </div>
                                                             <div className="flex items-center space-x-2 text-sm font-bold text-gray-900">
-                                                                <DollarSign className="h-4 w-4" />
                                                                 <span>{formatCurrency(activity.cost)}</span>
                                                             </div>
                                                         </div>

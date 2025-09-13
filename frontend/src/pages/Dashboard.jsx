@@ -74,7 +74,6 @@ const Dashboard = () => {
     }
 
     const getDestinationImage = (destination) => {
-        // Map destinations to beautiful images
         const imageMap = {
             'rome': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400',
             'italy': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400',
@@ -113,7 +112,6 @@ const Dashboard = () => {
             }
         }
 
-        // Default travel image
         return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400'
     }
 
@@ -129,7 +127,6 @@ const Dashboard = () => {
         return gradients[index % gradients.length]
     }
 
-    // Calculate user stats
     const totalTrips = trips.length
     const totalDays = trips.reduce((sum, trip) => sum + (trip.days || 0), 0)
     const totalSpent = trips.reduce((sum, trip) => sum + (trip.totalBudget || 0), 0)
@@ -142,7 +139,6 @@ const Dashboard = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
             <div className="container mx-auto px-4 max-w-7xl">
-                {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -166,7 +162,6 @@ const Dashboard = () => {
                     </div>
                 </motion.div>
 
-                {/* Stats Cards */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -230,7 +225,6 @@ const Dashboard = () => {
                     </Card>
                 </motion.div>
 
-                {/* My Trips Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -275,16 +269,13 @@ const Dashboard = () => {
                                     transition={{ delay: index * 0.1 }}
                                 >
                                     <Card className="overflow-hidden card-hover group">
-                                        {/* Trip Image Header */}
                                         <div className="relative h-48 overflow-hidden">
-                                            <div className={`absolute inset-0 bg-gradient-to-r ${getGradientClass(index)} opacity-90`} />
+                                            <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
                                             <img
                                                 src={getDestinationImage(trip.destination)}
                                                 alt={trip.destination}
-                                                className="w-full h-full object-cover transition-transform duration-300"
+                                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                             />
-
-                                            {/* Delete Button */}
                                             <button
                                                 onClick={() => handleDeleteTrip(trip._id || trip.id)}
                                                 disabled={deletingTrip === (trip._id || trip.id)}
@@ -296,8 +287,6 @@ const Dashboard = () => {
                                                     <Trash2 className="h-4 w-4" />
                                                 )}
                                             </button>
-
-                                            {/* Trip Title Overlay */}
                                             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
                                                 <h3 className="text-xl font-bold text-white mb-1">
                                                     {trip.fromLocation ? `${trip.fromLocation} → ` : ''}{trip.destination}
@@ -308,20 +297,16 @@ const Dashboard = () => {
                                                 </div>
                                             </div>
                                         </div>
-
                                         <CardContent className="p-6">
-                                            {/* Trip Details */}
                                             <div className="space-y-3 mb-4">
                                                 <div className="flex items-center text-sm text-gray-600">
                                                     <Calendar className="h-4 w-4 mr-2" />
                                                     Created {formatDate(trip.createdAt)}
                                                 </div>
-
                                                 <div className="flex items-center text-sm text-gray-600">
                                                     <DollarSign className="h-4 w-4 mr-2" />
                                                     Budget: {formatCurrency(trip.totalBudget || trip.itinerary?.estimatedCost?.total || 0)}
                                                 </div>
-
                                                 {trip.startDate && trip.endDate && (
                                                     <div className="flex items-center text-sm text-gray-600">
                                                         <Clock className="h-4 w-4 mr-2" />
@@ -329,8 +314,6 @@ const Dashboard = () => {
                                                     </div>
                                                 )}
                                             </div>
-
-                                            {/* Preferences Tags */}
                                             {trip.preferences && trip.preferences.length > 0 && (
                                                 <div className="flex flex-wrap gap-1 mb-4">
                                                     {trip.preferences.slice(0, 3).map((pref, idx) => (
@@ -345,8 +328,6 @@ const Dashboard = () => {
                                                     )}
                                                 </div>
                                             )}
-
-                                            {/* Action Buttons */}
                                             <div className="flex gap-2">
                                                 <Button asChild className="flex-1">
                                                     <Link to={`/trip/${trip._id || trip.id}`} className="flex items-center justify-center">
@@ -354,7 +335,6 @@ const Dashboard = () => {
                                                         View Trip
                                                     </Link>
                                                 </Button>
-
                                                 <Button variant="outline" size="sm" className="px-3">
                                                     <Share2 className="h-4 w-4" />
                                                 </Button>
@@ -367,7 +347,6 @@ const Dashboard = () => {
                     )}
                 </motion.div>
 
-                {/* Quick Actions */}
                 {trips.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -390,7 +369,11 @@ const Dashboard = () => {
                                             Plan New Trip
                                         </Link>
                                     </Button>
-                                    <Button asChild variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="border-white text-black hover:bg-white/20 hover:text-white transition-colors"
+                                    >
                                         <Link to="/explore" className="flex items-center">
                                             <Globe className="mr-2 h-4 w-4" />
                                             Explore Destinations

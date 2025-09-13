@@ -64,7 +64,6 @@ const TripDetail = () => {
     })
   }
 
-
   const getActivityIcon = (type) => {
     switch (type) {
       case 'restaurant': return '🍽️'
@@ -79,7 +78,6 @@ const TripDetail = () => {
   }
 
   const exportToPDF = () => {
-    // Simple PDF export using browser print
     window.print()
   }
 
@@ -230,94 +228,102 @@ const TripDetail = () => {
                     </div>
 
                     <div className="space-y-4">
-                      {day.activities?.map((activity, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <Card className="card-hover">
-                            <CardContent className="p-6">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center mb-2">
-                                    <span className="text-2xl mr-3">{getActivityIcon(activity.type)}</span>
-                                    <div>
-                                      <h4 className="text-lg font-semibold text-gray-900">
-                                        {activity.name}
-                                      </h4>
-                                      <div className="flex items-center text-sm text-gray-500 space-x-4">
-                                        <span className="flex items-center">
-                                          <Clock className="h-4 w-4 mr-1" />
-                                          {activity.time}
-                                        </span>
-                                        <span className="flex items-center">
-                                          <Calendar className="h-4 w-4 mr-1" />
-                                          {activity.duration}
-                                        </span>
-                                        <span className="flex items-center">
-                                          <DollarSign className="h-4 w-4 mr-1" />
-                                          {formatCurrency(activity.cost || 0)}
-                                        </span>
+                      {day.activities?.length > 0 ? (
+                        day.activities.map((activity, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                          >
+                            <Card className="card-hover">
+                              <CardContent className="p-6 bg-white">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center mb-2">
+                                      <span className="text-2xl mr-3">{getActivityIcon(activity.type)}</span>
+                                      <div>
+                                        <h4 className="text-lg font-semibold text-gray-900">
+                                          {activity.name}
+                                        </h4>
+                                        <div className="flex items-center text-sm text-gray-500 space-x-4">
+                                          <span className="flex items-center">
+                                            <Clock className="h-4 w-4 mr-1" />
+                                            {activity.time}
+                                          </span>
+                                          <span className="flex items-center">
+                                            <Calendar className="h-4 w-4 mr-1" />
+                                            {activity.duration}
+                                          </span>
+                                          <span className="flex items-center">
+                                            {formatCurrency(activity.cost || 0)}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
+
+                                    <p className="text-gray-600 mb-3">{activity.description}</p>
+
+                                    {activity.address && (
+                                      <p className="text-sm text-gray-500 flex items-center mb-3">
+                                        <MapPin className="h-4 w-4 mr-1" />
+                                        {activity.address}
+                                      </p>
+                                    )}
+
+                                    {activity.rating && (
+                                      <div className="flex items-center mb-3">
+                                        <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                                        <span className="text-sm font-medium">{activity.rating}</span>
+                                        <span className="text-sm text-gray-500 ml-1">Google Rating</span>
+                                      </div>
+                                    )}
+
+                                    {/* Photos */}
+                                    {activity.photos && activity.photos.length > 0 && (
+                                      <div className="flex space-x-2 mb-4 bg-transparent">
+                                        {activity.photos.slice(0, 3).map((photo, photoIndex) => (
+                                          <img
+                                            key={photoIndex}
+                                            src={photo}
+                                            alt={activity.name}
+                                            className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                          />
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
 
-                                  <p className="text-gray-600 mb-3">{activity.description}</p>
-
-                                  {activity.address && (
-                                    <p className="text-sm text-gray-500 flex items-center mb-3">
-                                      <MapPin className="h-4 w-4 mr-1" />
-                                      {activity.address}
-                                    </p>
-                                  )}
-
-                                  {activity.rating && (
-                                    <div className="flex items-center mb-3">
-                                      <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                                      <span className="text-sm font-medium">{activity.rating}</span>
-                                      <span className="text-sm text-gray-500 ml-1">Google Rating</span>
-                                    </div>
-                                  )}
-
-                                  {/* Photos */}
-                                  {activity.photos && activity.photos.length > 0 && (
-                                    <div className="flex space-x-2 mb-4">
-                                      {activity.photos.slice(0, 3).map((photo, photoIndex) => (
-                                        <img
-                                          key={photoIndex}
-                                          src={photo}
-                                          alt={activity.name}
-                                          className="w-20 h-20 object-cover rounded-lg"
-                                        />
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="ml-4">
-                                  <Button
-                                    asChild
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                  >
-                                    <a
-                                      href={activity.googleMapsUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center"
+                                  <div className="ml-4">
+                                    <Button
+                                      asChild
+                                      size="sm"
+                                      className="bg-blue-600 hover:bg-blue-700"
                                     >
-                                      <Navigation className="mr-2 h-4 w-4" />
-                                      Maps
-                                    </a>
-                                  </Button>
+                                      <a
+                                        href={activity.googleMapsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center"
+                                      >
+                                        <Navigation className="mr-2 h-4 w-4" />
+                                        Maps
+                                      </a>
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      ))}
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-600 mb-4">No activities planned for this day.</p>
+                          <Button asChild variant="outline">
+                            <Link to="/create-trip">Explore Destinations</Link>
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 ))}
