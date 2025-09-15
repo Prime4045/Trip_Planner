@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Search, 
-  HelpCircle, 
-  MessageCircle, 
-  Mail, 
+import {
+  Search,
+  HelpCircle,
+  MessageCircle,
+  Mail,
   Phone,
   ChevronDown,
   ChevronRight,
@@ -142,7 +142,7 @@ const Help = () => {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
             Find answers to common questions, browse our help articles, or get in touch with our support team.
           </p>
-          
+
           {/* Search */}
           <div className="relative max-w-md mx-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -310,7 +310,7 @@ const Help = () => {
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Start Live Chat
                 </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+                <Button variant="outline" className="border-white text-blue-600 hover:bg-white hover:text-blue-600">
                   <Mail className="mr-2 h-4 w-4" />
                   Send Email
                 </Button>

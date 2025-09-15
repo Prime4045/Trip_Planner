@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useCurrency } from '../context/CurrencyContext'
 import { motion } from 'framer-motion'
-import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle } from 'lucide-react'
+import { Plane, Menu, X, User, LogOut, Map, Home, Plus, Compass, Users, HelpCircle, DollarSign, ChevronDown } from 'lucide-react'
 import { Button } from './ui/button'
 import {
   DropdownMenu,
@@ -15,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const Header = () => {
   const { loginWithRedirect, logout, isAuthenticated, user, isLoading } = useAuth()
+  const { currency, changeCurrency, getCurrencySymbol } = useCurrency()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -50,16 +52,15 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => {
               if (item.auth && !isAuthenticated) return null
-              
+
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-blue-600 ${
-                    isActive(item.href) 
-                      ? 'text-blue-600' 
-                      : 'text-gray-600'
-                  }`}
+                  className={`flex items-center space-x-1 text-sm font-medium transition-colors hover:text-blue-600 ${isActive(item.href)
+                    ? 'text-blue-600'
+                    : 'text-gray-600'
+                    }`}
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.name}</span>
@@ -70,6 +71,47 @@ const Header = () => {
 
           {/* Auth Section */}
           <div className="flex items-center space-x-4">
+            {/* Currency Switcher */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  <span className="font-medium">{getCurrencySymbol()}</span>
+                  <span>{currency}</span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => changeCurrency('INR')}
+                  className={currency === 'INR' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">₹</span>
+                  Indian Rupee (INR)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => changeCurrency('USD')}
+                  className={currency === 'USD' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">$</span>
+                  US Dollar (USD)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => changeCurrency('EUR')}
+                  className={currency === 'EUR' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">€</span>
+                  Euro (EUR)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => changeCurrency('GBP')}
+                  className={currency === 'GBP' ? 'bg-blue-50' : ''}
+                >
+                  <span className="mr-2">£</span>
+                  British Pound (GBP)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {isLoading ? (
               <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
             ) : isAuthenticated ? (
@@ -77,7 +119,7 @@ const Header = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.picture} alt={user?.name} />
+                      <AvatarImage src={user?.avatar || user?.picture || user?.googleAvatar} alt={user?.name} />
                       <AvatarFallback>
                         {user?.name?.charAt(0)?.toUpperCase()}
                       </AvatarFallback>
@@ -123,7 +165,7 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button 
+              <Button
                 onClick={() => loginWithRedirect()}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
@@ -154,16 +196,15 @@ const Header = () => {
             <div className="space-y-1 px-2 pb-3 pt-2">
               {navigation.map((item) => {
                 if (item.auth && !isAuthenticated) return null
-                
+
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium ${
-                      isActive(item.href)
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                    className={`flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium ${isActive(item.href)
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <item.icon className="h-4 w-4" />

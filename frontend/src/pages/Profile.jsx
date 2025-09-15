@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion'
-import { useAuth0 } from '@auth0/auth0-react'
+import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
-import { 
-  User, 
-  Mail, 
-  Calendar, 
-  MapPin, 
+import { useCurrency } from '../context/CurrencyContext'
+import {
+  User,
+  Mail,
+  Calendar,
+  MapPin,
   Plane,
   DollarSign,
   Clock,
@@ -16,8 +17,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Badge } from '../components/ui/badge'
 
 const Profile = () => {
-  const { user } = useAuth0()
+  const { user } = useAuth()
   const { trips } = useTrip()
+  const { formatCurrency } = useCurrency()
 
   const totalDays = trips.reduce((sum, trip) => sum + trip.days, 0)
   const totalCost = trips.reduce((sum, trip) => sum + (trip.itinerary?.estimatedCost?.total || 0), 0)
@@ -29,7 +31,7 @@ const Profile = () => {
     }, {})
 
   const topPreferences = Object.entries(favoritePreferences)
-    .sort(([,a], [,b]) => b - a)
+    .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
     .map(([pref]) => pref)
 
@@ -55,7 +57,7 @@ const Profile = () => {
     {
       icon: DollarSign,
       label: 'Total Spent',
-      value: `$${totalCost.toLocaleString()}`,
+      value: formatCurrency(totalCost),
       color: 'bg-yellow-100 text-yellow-600'
     }
   ]
@@ -100,12 +102,12 @@ const Profile = () => {
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={user?.picture} alt={user?.name} />
+                  <AvatarImage src={user?.avatar || user?.picture || user?.googleAvatar} alt={user?.name} />
                   <AvatarFallback className="text-2xl">
                     {user?.name?.charAt(0)?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                
+
                 <div className="flex-1 text-center md:text-left">
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     {user?.name}
@@ -117,10 +119,10 @@ const Profile = () => {
                     </div>
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2" />
-                      Member since {new Date(user?.updated_at).getFullYear()}
+                      Member since {new Date(user?.createdAt || user?.updated_at || Date.now()).getFullYear()}
                     </div>
                   </div>
-                  
+
                   {topPreferences.length > 0 && (
                     <div className="mt-4">
                       <p className="text-sm text-gray-600 mb-2">Favorite Travel Styles:</p>
@@ -182,18 +184,16 @@ const Profile = () => {
                 {achievements.map((achievement, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-lg border-2 transition-all ${
-                      achievement.earned
-                        ? 'border-yellow-200 bg-yellow-50'
-                        : 'border-gray-200 bg-gray-50 opacity-60'
-                    }`}
+                    className={`p-4 rounded-lg border-2 transition-all ${achievement.earned
+                      ? 'border-yellow-200 bg-yellow-50'
+                      : 'border-gray-200 bg-gray-50 opacity-60'
+                      }`}
                   >
                     <div className="flex items-center mb-2">
                       <span className="text-2xl mr-3">{achievement.icon}</span>
                       <div>
-                        <h3 className={`font-semibold ${
-                          achievement.earned ? 'text-yellow-800' : 'text-gray-600'
-                        }`}>
+                        <h3 className={`font-semibold ${achievement.earned ? 'text-yellow-800' : 'text-gray-600'
+                          }`}>
                           {achievement.title}
                         </h3>
                         {achievement.earned && (
@@ -203,9 +203,8 @@ const Profile = () => {
                         )}
                       </div>
                     </div>
-                    <p className={`text-sm ${
-                      achievement.earned ? 'text-yellow-700' : 'text-gray-500'
-                    }`}>
+                    <p className={`text-sm ${achievement.earned ? 'text-yellow-700' : 'text-gray-500'
+                      }`}>
                       {achievement.description}
                     </p>
                   </div>
@@ -236,19 +235,19 @@ const Profile = () => {
               ) : (
                 <div className="space-y-4">
                   {trips.slice(0, 5).map((trip, index) => (
-                    <div key={trip.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div key={trip._id || trip.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                       <div className="p-2 bg-blue-100 rounded-lg">
                         <Plane className="h-4 w-4 text-blue-600" />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900">{trip.destination}</h4>
                         <p className="text-sm text-gray-600">
-                          {trip.days} days • {trip.budget} budget • 
-                          Created {new Date(trip.createdAt.seconds * 1000).toLocaleDateString()}
+                          {trip.days} days • {trip.budget} budget •
+                          Created {new Date(trip.createdAt || trip.updatedAt || Date.now()).toLocaleDateString()}
                         </p>
                       </div>
                       <Badge variant="outline">
-                        ${trip.itinerary?.estimatedCost?.total || 'N/A'}
+                        ₹{trip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
                       </Badge>
                     </div>
                   ))}

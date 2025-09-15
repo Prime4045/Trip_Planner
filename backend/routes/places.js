@@ -1,52 +1,25 @@
 const express = require('express')
-const { getPlaceDetails, getPlacePhotos, searchPlaces } = require('../services/placesService')
+const { autocompleteSearch } = require('../services/autocompleteService')
 
 const router = express.Router()
 
-// Search places
-router.get('/search', async (req, res) => {
+// Autocomplete search for destinations
+router.get('/autocomplete', async (req, res) => {
   try {
-    const { query, location, type } = req.query
+    const { input } = req.query
 
-    if (!query) {
-      return res.status(400).json({ message: 'Query parameter is required' })
+    if (!input || input.length < 2) {
+      return res.json([])
     }
 
-    const places = await searchPlaces(query, location, type)
-    res.json(places)
-  } catch (error) {
-    console.error('Places search error:', error)
-    res.status(500).json({ message: 'Server error searching places' })
-  }
-})
+    console.log('Autocomplete request for:', input)
+    const suggestions = await autocompleteSearch(input)
+    console.log('Returning suggestions:', suggestions.length)
 
-// Get place details
-router.get('/details/:placeId', async (req, res) => {
-  try {
-    const { placeId } = req.params
-    const details = await getPlaceDetails(placeId)
-    
-    if (!details) {
-      return res.status(404).json({ message: 'Place not found' })
-    }
-
-    res.json(details)
+    res.json(suggestions)
   } catch (error) {
-    console.error('Place details error:', error)
-    res.status(500).json({ message: 'Server error fetching place details' })
-  }
-})
-
-// Get place photos
-router.get('/photos/:placeId', async (req, res) => {
-  try {
-    const { placeId } = req.params
-    const photos = await getPlacePhotos(placeId)
-    
-    res.json({ photos })
-  } catch (error) {
-    console.error('Place photos error:', error)
-    res.status(500).json({ message: 'Server error fetching place photos' })
+    console.error('Autocomplete error:', error)
+    res.status(500).json({ message: 'Server error with autocomplete' })
   }
 })
 

@@ -3,13 +3,33 @@ const { body, validationResult } = require('express-validator')
 const { requiresAuth } = require('express-openid-connect')
 const Trip = require('../models/Trip')
 const User = require('../models/User')
-const { generateItinerary } = require('../services/geminiService')
+const { generateItinerary, getDestinationInfo, enhanceWithRealPhotos } = require('../services/geminiService')
 
 const router = express.Router()
+
+// Get destination information (interests and minimum budget)
+router.post('/destination-info', async (req, res) => {
+  try {
+    const { destination } = req.body
+    
+    if (!destination) {
+      return res.status(400).json({ message: 'Destination is required' })
+    }
+
+    console.log('Getting destination info for:', destination)
+    const destinationInfo = await getDestinationInfo(destination)
+    
+    res.json(destinationInfo)
+  } catch (error) {
+    console.error('Destination info error:', error)
+    res.status(500).json({ message: 'Server error getting destination info' })
+  }
+})
 
 // Get all user trips
 router.get('/', requiresAuth(), async (req, res) => {
   try {
+    console.log('Fetching trips for user:', req.user._id)
     const trips = await Trip.find({ userId: req.user._id })
       .sort({ createdAt: -1 })
       .select('-__v')
@@ -24,9 +44,9 @@ router.get('/', requiresAuth(), async (req, res) => {
 // Get single trip
 router.get('/:id', requiresAuth(), async (req, res) => {
   try {
-    const trip = await Trip.findOne({ 
-      _id: req.params.id, 
-      userId: req.user._id 
+    const trip = await Trip.findOne({
+      _id: req.params.id,
+      userId: req.user._id
     }).select('-__v')
 
     if (!trip) {
@@ -42,40 +62,71 @@ router.get('/:id', requiresAuth(), async (req, res) => {
 
 // Create new trip
 router.post('/', requiresAuth(), [
+  body('fromLocation').trim().isLength({ min: 2 }).withMessage('Starting location is required'),
   body('destination').trim().isLength({ min: 2 }).withMessage('Destination is required'),
   body('days').isInt({ min: 1, max: 30 }).withMessage('Days must be between 1 and 30'),
   body('budget').isIn(['low', 'medium', 'high']).withMessage('Invalid budget option'),
   body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required'),
   body('travelType').isIn(['solo', 'couple', 'friends', 'family']).withMessage('Invalid travel type'),
   body('memberCount').optional().isInt({ min: 1, max: 10 }).withMessage('Member count must be between 1 and 10')
+  body('startDate').isISO8601().withMessage('Valid start date is required'),
+  body('endDate').isISO8601().withMessage('Valid end date is required'),
+  body('totalBudget').isInt({ min: 1 }).withMessage('Total budget must be a positive number'),
+  body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required')
 ], async (req, res) => {
   try {
+    console.log('Creating trip for user:', req.user._id)
+    console.log('Trip data:', req.body)
+
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array())
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { destination, days, budget, preferences, travelType, memberCount } = req.body
+    const { fromLocation, destination, startDate, endDate, totalBudget, preferences } = req.body
 
+    // Calculate days from dates
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+
+    if (days <= 0 || days > 365) {
+      return res.status(400).json({ message: 'Invalid date range. Trip must be between 1 and 365 days.' })
+    }
+
+
+    console.log('Calling Gemini API to generate itinerary...')
     // Generate AI itinerary
     const aiItinerary = await generateItinerary({
+      fromLocation,
       destination,
+      startDate,
+      endDate,
       days,
       budget,
       preferences,
       travelType,
       memberCount: memberCount || 1
+      totalBudget,
+      preferences
     })
 
-    // For now, use the AI itinerary directly since Google Places API is not available
-    const enrichedItinerary = aiItinerary
+    console.log('Itinerary generated successfully')
+
+    // Enhance itinerary with real photos from RapidAPI
+    console.log('Enhancing itinerary with real photos...')
+    const enrichedItinerary = await enhanceWithRealPhotos(aiItinerary)
 
     // Create trip
     const trip = new Trip({
       userId: req.user._id,
+      fromLocation,
       destination,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       days,
-      budget,
+      totalBudget,
       preferences,
       travelType,
       memberCount: memberCount || 1,
@@ -83,21 +134,24 @@ router.post('/', requiresAuth(), [
     })
 
     await trip.save()
+    console.log('Trip saved to database with ID:', trip._id)
 
     // Update user stats
     await User.findByIdAndUpdate(req.user._id, {
-      $inc: { 
+      $inc: {
         'stats.totalTrips': 1,
         'stats.totalDays': days,
-        'stats.totalSpent': enrichedItinerary.estimatedCost?.total || 0
+        'stats.totalSpent': totalBudget
       }
     })
 
+    console.log('User stats updated')
     res.status(201).json(trip)
   } catch (error) {
     console.error('Create trip error:', error)
     console.error('Error details:', error.message)
-    res.status(500).json({ 
+    console.error('Stack trace:', error.stack)
+    res.status(500).json({
       message: 'Server error creating trip',
       error: process.env.NODE_ENV === 'development' ? error.message : {}
     })
@@ -137,18 +191,24 @@ router.put('/:id', requiresAuth(), [
 // Delete trip
 router.delete('/:id', requiresAuth(), async (req, res) => {
   try {
-    const trip = await Trip.findOneAndDelete({ 
-      _id: req.params.id, 
-      userId: req.user._id 
+    console.log('Delete request for trip ID:', req.params.id)
+    console.log('User ID:', req.user._id)
+    
+    const trip = await Trip.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user._id
     })
 
     if (!trip) {
+      console.log('Trip not found for deletion')
       return res.status(404).json({ message: 'Trip not found' })
     }
 
+    console.log('Trip deleted successfully:', trip._id)
+    
     // Update user stats
     await User.findByIdAndUpdate(req.user._id, {
-      $inc: { 
+      $inc: {
         'stats.totalTrips': -1,
         'stats.totalDays': -trip.days,
         'stats.totalSpent': -(trip.itinerary?.estimatedCost?.total || 0)
@@ -158,6 +218,7 @@ router.delete('/:id', requiresAuth(), async (req, res) => {
     res.json({ message: 'Trip deleted successfully' })
   } catch (error) {
     console.error('Delete trip error:', error)
+    console.error('Error details:', error.message)
     res.status(500).json({ message: 'Server error deleting trip' })
   }
 })
@@ -198,7 +259,7 @@ router.get('/stats/summary', requiresAuth(), async (req, res) => {
       ...result,
       uniqueDestinations: result.destinations.length,
       topPreferences: Object.entries(preferenceCount)
-        .sort(([,a], [,b]) => b - a)
+        .sort(([, a], [, b]) => b - a)
         .slice(0, 5)
         .map(([pref]) => pref)
     })

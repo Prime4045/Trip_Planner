@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useTrip } from '../context/TripContext'
-import { 
-  MapPin, 
-  Calendar, 
-  DollarSign, 
-  Clock, 
+import { useCurrency } from '../context/CurrencyContext'
+import {
+  MapPin,
+  Calendar,
+  DollarSign,
+  Clock,
   ExternalLink,
   ArrowLeft,
   Star,
@@ -24,6 +25,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 const TripDetail = () => {
   const { id } = useParams()
   const { currentTrip, getTripById } = useTrip()
+  const { formatCurrency } = useCurrency()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -54,20 +56,12 @@ const TripDetail = () => {
   }
 
   const formatDate = (date) => {
-    return new Date(date.seconds * 1000).toLocaleDateString('en-US', {
+    const dateObj = date?.seconds ? new Date(date.seconds * 1000) : new Date(date)
+    return dateObj.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     })
-  }
-
-  const formatBudget = (budget) => {
-    const budgetLabels = {
-      low: 'Budget-Friendly',
-      medium: 'Mid-Range',
-      high: 'Luxury'
-    }
-    return budgetLabels[budget] || budget
   }
 
   const getActivityIcon = (type) => {
@@ -76,12 +70,14 @@ const TripDetail = () => {
       case 'hotel': return '🏨'
       case 'attraction': return '🎯'
       case 'activity': return '🎪'
+      case 'transport': return '🚗'
+      case 'shopping': return '🛍️'
+      case 'nature': return '🌿'
       default: return '📍'
     }
   }
 
   const exportToPDF = () => {
-    // Simple PDF export using browser print
     window.print()
   }
 
@@ -109,11 +105,16 @@ const TripDetail = () => {
 
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              {currentTrip.destination}
+              {currentTrip.fromLocation} → {currentTrip.destination}
             </h1>
             <p className="text-lg text-gray-600">
-              {currentTrip.days} days • {formatBudget(currentTrip.budget)} • Created {formatDate(currentTrip.createdAt)}
+              {currentTrip.days} days • {formatCurrency(currentTrip.totalBudget)} total budget • Created {formatDate(currentTrip.createdAt)}
             </p>
+            {currentTrip.startDate && currentTrip.endDate && (
+              <p className="text-gray-500">
+                {formatDate(currentTrip.startDate)} - {formatDate(currentTrip.endDate)}
+              </p>
+            )}
           </div>
         </motion.div>
 
@@ -152,7 +153,7 @@ const TripDetail = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Estimated Cost</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ₹{currentTrip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
+                    {formatCurrency(currentTrip.itinerary?.estimatedCost?.total || currentTrip.totalBudget)}
                   </p>
                   {currentTrip.memberCount > 1 && (
                     <p className="text-xs text-gray-500">
@@ -251,94 +252,102 @@ const TripDetail = () => {
                     </div>
 
                     <div className="space-y-4">
-                      {day.activities?.map((activity, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <Card className="card-hover">
-                            <CardContent className="p-6">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center mb-2">
-                                    <span className="text-2xl mr-3">{getActivityIcon(activity.type)}</span>
-                                    <div>
-                                      <h4 className="text-lg font-semibold text-gray-900">
-                                        {activity.name}
-                                      </h4>
-                                      <div className="flex items-center text-sm text-gray-500 space-x-4">
-                                        <span className="flex items-center">
-                                          <Clock className="h-4 w-4 mr-1" />
-                                          {activity.time}
-                                        </span>
-                                        <span className="flex items-center">
-                                          <Calendar className="h-4 w-4 mr-1" />
-                                          {activity.duration}
-                                        </span>
-                                        <span className="flex items-center">
-                                          <DollarSign className="h-4 w-4 mr-1" />
-                                          ₹{activity.cost}
-                                        </span>
+                      {day.activities?.length > 0 ? (
+                        day.activities.map((activity, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                          >
+                            <Card className="card-hover">
+                              <CardContent className="p-6 bg-white">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center mb-2">
+                                      <span className="text-2xl mr-3">{getActivityIcon(activity.type)}</span>
+                                      <div>
+                                        <h4 className="text-lg font-semibold text-gray-900">
+                                          {activity.name}
+                                        </h4>
+                                        <div className="flex items-center text-sm text-gray-500 space-x-4">
+                                          <span className="flex items-center">
+                                            <Clock className="h-4 w-4 mr-1" />
+                                            {activity.time}
+                                          </span>
+                                          <span className="flex items-center">
+                                            <Calendar className="h-4 w-4 mr-1" />
+                                            {activity.duration}
+                                          </span>
+                                          <span className="flex items-center">
+                                            {formatCurrency(activity.cost || 0)}
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
+
+                                    <p className="text-gray-600 mb-3">{activity.description}</p>
+
+                                    {activity.address && (
+                                      <p className="text-sm text-gray-500 flex items-center mb-3">
+                                        <MapPin className="h-4 w-4 mr-1" />
+                                        {activity.address}
+                                      </p>
+                                    )}
+
+                                    {activity.rating && (
+                                      <div className="flex items-center mb-3">
+                                        <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                                        <span className="text-sm font-medium">{activity.rating}</span>
+                                        <span className="text-sm text-gray-500 ml-1">Google Rating</span>
+                                      </div>
+                                    )}
+
+                                    {/* Photos */}
+                                    {activity.photos && activity.photos.length > 0 && (
+                                      <div className="flex space-x-2 mb-4 bg-transparent">
+                                        {activity.photos.slice(0, 3).map((photo, photoIndex) => (
+                                          <img
+                                            key={photoIndex}
+                                            src={photo}
+                                            alt={activity.name}
+                                            className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                                          />
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-                                  
-                                  <p className="text-gray-600 mb-3">{activity.description}</p>
-                                  
-                                  {activity.address && (
-                                    <p className="text-sm text-gray-500 flex items-center mb-3">
-                                      <MapPin className="h-4 w-4 mr-1" />
-                                      {activity.address}
-                                    </p>
-                                  )}
 
-                                  {activity.rating && (
-                                    <div className="flex items-center mb-3">
-                                      <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                                      <span className="text-sm font-medium">{activity.rating}</span>
-                                      <span className="text-sm text-gray-500 ml-1">Google Rating</span>
-                                    </div>
-                                  )}
-
-                                  {/* Photos */}
-                                  {activity.photos && activity.photos.length > 0 && (
-                                    <div className="flex space-x-2 mb-4">
-                                      {activity.photos.slice(0, 3).map((photo, photoIndex) => (
-                                        <img
-                                          key={photoIndex}
-                                          src={photo}
-                                          alt={activity.name}
-                                          className="w-20 h-20 object-cover rounded-lg"
-                                        />
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className="ml-4">
-                                  <Button
-                                    asChild
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                  >
-                                    <a
-                                      href={activity.googleMapsUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center"
+                                  <div className="ml-4">
+                                    <Button
+                                      asChild
+                                      size="sm"
+                                      className="bg-blue-600 hover:bg-blue-700"
                                     >
-                                      <Navigation className="mr-2 h-4 w-4" />
-                                      Maps
-                                    </a>
-                                  </Button>
+                                      <a
+                                        href={activity.googleMapsUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center"
+                                      >
+                                        <Navigation className="mr-2 h-4 w-4" />
+                                        Maps
+                                      </a>
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      ))}
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-600 mb-4">No activities planned for this day.</p>
+                          <Button asChild variant="outline">
+                            <Link to="/create-trip">Explore Destinations</Link>
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 ))}
@@ -364,14 +373,16 @@ const TripDetail = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {Object.entries(currentTrip.itinerary.estimatedCost).map(([key, value]) => (
-                    <div key={key} className="text-center p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-medium text-gray-600 capitalize">
-                        {key === 'total' ? 'Total Cost' : key}
-                      </p>
-                      <p className="text-xl font-bold text-gray-900">${value}</p>
-                    </div>
-                  ))}
+                  {Object.entries(currentTrip.itinerary.estimatedCost)
+                    .filter(([key]) => key !== 'currency')
+                    .map(([key, value]) => (
+                      <div key={key} className="text-center p-4 bg-gray-50 rounded-lg">
+                        <p className="text-sm font-medium text-gray-600 capitalize">
+                          {key === 'total' ? 'Total Cost' : key}
+                        </p>
+                        <p className="text-xl font-bold text-gray-900">{formatCurrency(value)}</p>
+                      </div>
+                    ))}
                 </div>
               </CardContent>
             </Card>

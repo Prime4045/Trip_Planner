@@ -8,7 +8,7 @@ const activitySchema = new mongoose.Schema({
   cost: Number,
   type: {
     type: String,
-    enum: ['attraction', 'restaurant', 'hotel', 'activity', 'transport']
+    enum: ['attraction', 'restaurant', 'hotel', 'activity', 'transport', 'food', 'spiritual', 'shopping', 'cultural', 'sightseeing', 'entertainment', 'nature', 'adventure', 'relaxation']
   },
   location: String,
   placeId: String,
@@ -53,15 +53,27 @@ const tripSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
+  },
   days: {
     type: Number,
     required: true,
     min: 1,
     max: 30
   },
-  budget: {
-    type: String,
+  totalBudget: {
+    type: Number,
     required: true,
+    min: 1
+  },
+  budgetCategory: {
+    type: String,
     enum: ['low', 'medium', 'high']
   },
   travelType: {

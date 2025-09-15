@@ -18,7 +18,7 @@ const Explore = () => {
     {
       id: 1,
       name: 'Paris, France',
-      image: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=500',
+      image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=500',
       rating: 4.8,
       reviews: 2847,
       category: 'cultural',
@@ -101,18 +101,18 @@ const Explore = () => {
   useEffect(() => {
     // Filter destinations based on search and category
     let filtered = mockDestinations
-    
+
     if (searchQuery) {
-      filtered = filtered.filter(dest => 
+      filtered = filtered.filter(dest =>
         dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         dest.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
-    
+
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(dest => dest.category === selectedCategory)
     }
-    
+
     setDestinations(filtered)
   }, [searchQuery, selectedCategory])
 
@@ -170,7 +170,7 @@ const Explore = () => {
                     className="pl-10"
                   />
                 </div>
-                
+
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full md:w-48">
                     <SelectValue placeholder="Category" />
@@ -232,7 +232,7 @@ const Explore = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className={viewMode === 'grid' 
+            <div className={viewMode === 'grid'
               ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
               : 'space-y-6'
             }>
@@ -256,7 +256,7 @@ const Explore = () => {
                         </Badge>
                       </div>
                     </div>
-                    
+
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-2">
                         <h3 className="text-xl font-bold text-gray-900">
@@ -268,11 +268,11 @@ const Explore = () => {
                           <span className="text-sm text-gray-500">({destination.reviews})</span>
                         </div>
                       </div>
-                      
+
                       <p className="text-gray-600 mb-4 line-clamp-2">
                         {destination.description}
                       </p>
-                      
+
                       <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                         <div className="flex items-center">
                           <Clock className="h-4 w-4 mr-1" />
@@ -282,7 +282,7 @@ const Explore = () => {
                           {destination.category}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-1 mb-4">
                         {destination.highlights.slice(0, 3).map((highlight, idx) => (
                           <Badge key={idx} variant="secondary" className="text-xs">
@@ -295,7 +295,7 @@ const Explore = () => {
                           </Badge>
                         )}
                       </div>
-                      
+
                       <Button className="w-full">
                         Plan Trip to {destination.name.split(',')[0]}
                       </Button>
