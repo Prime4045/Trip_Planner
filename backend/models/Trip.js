@@ -64,6 +64,18 @@ const tripSchema = new mongoose.Schema({
     required: true,
     enum: ['low', 'medium', 'high']
   },
+  travelType: {
+    type: String,
+    required: true,
+    enum: ['solo', 'couple', 'friends', 'family']
+  },
+  memberCount: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 10,
+    default: 1
+  },
   preferences: [{
     type: String,
     required: true

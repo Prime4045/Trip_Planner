@@ -122,8 +122,27 @@ const TripDetail = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
         >
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Users className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Travel Type</p>
+                  <p className="text-lg font-bold text-gray-900 capitalize">
+                    {currentTrip.travelType || 'Solo'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {currentTrip.memberCount || 1} {(currentTrip.memberCount || 1) === 1 ? 'person' : 'people'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -135,6 +154,11 @@ const TripDetail = () => {
                   <p className="text-2xl font-bold text-gray-900">
                     ₹{currentTrip.itinerary?.estimatedCost?.total?.toLocaleString('en-IN') || 'N/A'}
                   </p>
+                  {currentTrip.memberCount > 1 && (
+                    <p className="text-xs text-gray-500">
+                      ₹{Math.round((currentTrip.itinerary?.estimatedCost?.total || 0) / currentTrip.memberCount).toLocaleString('en-IN')} per person
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>

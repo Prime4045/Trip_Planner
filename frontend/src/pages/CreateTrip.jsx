@@ -9,7 +9,11 @@ import {
   Users, 
   Plane,
   Loader2,
-  Sparkles
+  Sparkles,
+  User,
+  Heart,
+  UserPlus,
+  Baby
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
@@ -33,14 +37,85 @@ const CreateTrip = () => {
     destination: '',
     days: '',
     budget: '',
+    travelType: '',
+    memberCount: 1,
     preferences: []
   })
 
-  const budgetOptions = [
-    { value: 'low', label: 'Budget-Friendly (₹2000-4000/day)', icon: '💰' },
-    { value: 'medium', label: 'Mid-Range (₹4000-12000/day)', icon: '💳' },
-    { value: 'high', label: 'Luxury (₹12000+/day)', icon: '💎' }
+  const travelTypes = [
+    { 
+      value: 'solo', 
+      label: 'Solo Travel', 
+      icon: User, 
+      description: 'Just you',
+      memberCount: 1,
+      budgetMultiplier: 1
+    },
+    { 
+      value: 'couple', 
+      label: 'Couple', 
+      icon: Heart, 
+      description: '2 people',
+      memberCount: 2,
+      budgetMultiplier: 1.8
+    },
+    { 
+      value: 'friends', 
+      label: 'Friends', 
+      icon: UserPlus, 
+      description: '3-6 people',
+      memberCount: 4,
+      budgetMultiplier: 3.2,
+      allowCustomCount: true,
+      minCount: 3,
+      maxCount: 8
+    },
+    { 
+      value: 'family', 
+      label: 'Family', 
+      icon: Baby, 
+      description: '2-8 people (adults & children)',
+      memberCount: 4,
+      budgetMultiplier: 3.5,
+      allowCustomCount: true,
+      minCount: 2,
+      maxCount: 10
+    }
   ]
+
+  const getBudgetOptions = () => {
+    const selectedTravelType = travelTypes.find(type => type.value === formData.travelType)
+    const multiplier = selectedTravelType ? selectedTravelType.budgetMultiplier : 1
+    const memberCount = formData.memberCount || selectedTravelType?.memberCount || 1
+    
+    // Base daily costs per person in INR
+    const baseCosts = {
+      low: 2000,
+      medium: 5000,
+      high: 12000
+    }
+    
+    return [
+      { 
+        value: 'low', 
+        label: `Budget-Friendly (₹${(baseCosts.low * memberCount).toLocaleString()}/day total)`, 
+        icon: '💰',
+        dailyCost: baseCosts.low * memberCount
+      },
+      { 
+        value: 'medium', 
+        label: `Mid-Range (₹${(baseCosts.medium * memberCount).toLocaleString()}/day total)`, 
+        icon: '💳',
+        dailyCost: baseCosts.medium * memberCount
+      },
+      { 
+        value: 'high', 
+        label: `Luxury (₹${(baseCosts.high * memberCount).toLocaleString()}/day total)`, 
+        icon: '💎',
+        dailyCost: baseCosts.high * memberCount
+      }
+    ]
+  }
 
   const preferenceOptions = [
     'Adventure', 'Cultural Heritage', 'Spiritual', 'Food & Cuisine', 'Nature & Wildlife',
@@ -48,6 +123,23 @@ const CreateTrip = () => {
     'Mountains', 'Museums', 'Local Experiences', 'Wellness & Ayurveda', 'Festivals'
   ]
 
+  const handleTravelTypeChange = (value) => {
+    const selectedType = travelTypes.find(type => type.value === value)
+    setFormData(prev => ({
+      ...prev,
+      travelType: value,
+      memberCount: selectedType?.memberCount || 1,
+      budget: '' // Reset budget when travel type changes
+    }))
+  }
+
+  const handleMemberCountChange = (count) => {
+    setFormData(prev => ({
+      ...prev,
+      memberCount: parseInt(count),
+      budget: '' // Reset budget when member count changes
+    }))
+  }
   const handlePreferenceToggle = (preference) => {
     setFormData(prev => ({
       ...prev,
@@ -60,10 +152,10 @@ const CreateTrip = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!formData.destination || !formData.days || !formData.budget) {
+    if (!formData.destination || !formData.days || !formData.budget || !formData.travelType) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields including travel type.",
         variant: "destructive"
       })
       return
@@ -81,7 +173,8 @@ const CreateTrip = () => {
     try {
       const trip = await createTrip({
         ...formData,
-        days: parseInt(formData.days)
+        days: parseInt(formData.days),
+        memberCount: formData.memberCount
       })
       
       toast({
@@ -99,6 +192,8 @@ const CreateTrip = () => {
     }
   }
 
+  const selectedTravelType = travelTypes.find(type => type.value === formData.travelType)
+  const budgetOptions = getBudgetOptions()
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
       <div className="container mx-auto px-4 max-w-2xl">
@@ -149,6 +244,64 @@ const CreateTrip = () => {
                   />
                 </div>
 
+                {/* Travel Type */}
+                <div className="space-y-3">
+                  <Label className="flex items-center">
+                    <Users className="mr-2 h-4 w-4" />
+                    Travel Type *
+                  </Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {travelTypes.map((type) => (
+                      <motion.button
+                        key={type.value}
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleTravelTypeChange(type.value)}
+                        className={`p-4 rounded-lg border-2 text-left transition-all ${
+                          formData.travelType === type.value
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center mb-2">
+                          <type.icon className="h-5 w-5 mr-2" />
+                          <span className="font-medium">{type.label}</span>
+                        </div>
+                        <p className="text-sm opacity-75">{type.description}</p>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Member Count for Friends/Family */}
+                {selectedTravelType?.allowCustomCount && (
+                  <div className="space-y-2">
+                    <Label htmlFor="memberCount" className="flex items-center">
+                      <Users className="mr-2 h-4 w-4" />
+                      Number of {formData.travelType === 'family' ? 'Family Members' : 'Friends'} *
+                    </Label>
+                    <Select 
+                      value={formData.memberCount.toString()} 
+                      onValueChange={handleMemberCountChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select count" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from(
+                          { length: selectedTravelType.maxCount - selectedTravelType.minCount + 1 }, 
+                          (_, i) => selectedTravelType.minCount + i
+                        ).map(count => (
+                          <SelectItem key={count} value={count.toString()}>
+                            {count} {count === 1 ? 'person' : 'people'}
+                            {formData.travelType === 'family' && count > 2 && ' (including children)'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 {/* Days and Budget */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -173,11 +326,15 @@ const CreateTrip = () => {
                   <div className="space-y-2">
                     <Label className="flex items-center">
                       <DollarSign className="mr-2 h-4 w-4" />
-                      Budget Range *
+                      Budget Range * {formData.memberCount > 1 && `(for ${formData.memberCount} people)`}
                     </Label>
-                    <Select value={formData.budget} onValueChange={(value) => setFormData(prev => ({ ...prev, budget: value }))}>
+                    <Select 
+                      value={formData.budget} 
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, budget: value }))}
+                      disabled={!formData.travelType}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select budget" />
+                        <SelectValue placeholder={formData.travelType ? "Select budget" : "Select travel type first"} />
                       </SelectTrigger>
                       <SelectContent>
                         {budgetOptions.map(option => (
@@ -190,13 +347,18 @@ const CreateTrip = () => {
                         ))}
                       </SelectContent>
                     </Select>
+                    {formData.travelType && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Costs calculated for {formData.memberCount} {formData.memberCount === 1 ? 'person' : 'people'}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* Preferences */}
                 <div className="space-y-3">
                   <Label className="flex items-center">
-                    <Users className="mr-2 h-4 w-4" />
+                    <Sparkles className="mr-2 h-4 w-4" />
                     Travel Preferences * (Select at least one)
                   </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">

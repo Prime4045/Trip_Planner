@@ -45,7 +45,9 @@ router.post('/', requiresAuth(), [
   body('destination').trim().isLength({ min: 2 }).withMessage('Destination is required'),
   body('days').isInt({ min: 1, max: 30 }).withMessage('Days must be between 1 and 30'),
   body('budget').isIn(['low', 'medium', 'high']).withMessage('Invalid budget option'),
-  body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required')
+  body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required'),
+  body('travelType').isIn(['solo', 'couple', 'friends', 'family']).withMessage('Invalid travel type'),
+  body('memberCount').optional().isInt({ min: 1, max: 10 }).withMessage('Member count must be between 1 and 10')
 ], async (req, res) => {
   try {
     const errors = validationResult(req)
@@ -53,14 +55,16 @@ router.post('/', requiresAuth(), [
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { destination, days, budget, preferences } = req.body
+    const { destination, days, budget, preferences, travelType, memberCount } = req.body
 
     // Generate AI itinerary
     const aiItinerary = await generateItinerary({
       destination,
       days,
       budget,
-      preferences
+      preferences,
+      travelType,
+      memberCount: memberCount || 1
     })
 
     // For now, use the AI itinerary directly since Google Places API is not available
@@ -73,6 +77,8 @@ router.post('/', requiresAuth(), [
       days,
       budget,
       preferences,
+      travelType,
+      memberCount: memberCount || 1,
       itinerary: aiItinerary
     })
 
