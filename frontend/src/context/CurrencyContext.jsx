@@ -48,11 +48,11 @@ export const CurrencyProvider = ({ children }) => {
   }
 
   const formatCurrency = (amount) => {
-    if (!amount || isNaN(amount)) return `${currencySymbols[currency]}0.00`;
+    if (!amount || isNaN(amount)) return `${currencySymbols[currency]}0.00`
 
     // Always convert from INR to selected currency
-    const convertedAmount = amount * exchangeRate;
-    const symbol = currencySymbols[currency];
+    const convertedAmount = amount * exchangeRate
+    const symbol = currencySymbols[currency]
 
     // Use Intl.NumberFormat for proper formatting
     return new Intl.NumberFormat('en-US', {
@@ -60,7 +60,7 @@ export const CurrencyProvider = ({ children }) => {
       currency: currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(convertedAmount);
+    }).format(convertedAmount)
   }
 
   const getCurrencySymbol = () => {

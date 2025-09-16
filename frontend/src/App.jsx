@@ -1,4 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+
+// Router configuration with future flags to suppress warnings
+const routerConfig = {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+}
+
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { FirebaseProvider } from './context/FirebaseContext'
 import { CurrencyProvider } from './context/CurrencyContext'
@@ -46,7 +55,7 @@ function AppContent() {
   }
 
   return (
-    <Router>
+    <Router {...routerConfig}>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Header />
         <main className="flex-1">

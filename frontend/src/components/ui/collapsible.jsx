@@ -22,7 +22,7 @@ const CollapsibleTrigger = React.forwardRef(({ children, ...props }, ref) => {
         <button
             ref={ref}
             type="button"
-            onClick={() => onOpenChange(!open)}
+            onClick={() => onOpenChange && onOpenChange(!open)}
             aria-expanded={open}
             {...props}
         >
@@ -48,5 +48,8 @@ const CollapsibleContent = React.forwardRef(({ children, ...props }, ref) => {
         </div>
     )
 })
+
+CollapsibleTrigger.displayName = "CollapsibleTrigger"
+CollapsibleContent.displayName = "CollapsibleContent"
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent }

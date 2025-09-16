@@ -37,11 +37,12 @@ const Dashboard = () => {
     }, [])
 
     const handleDeleteTrip = async (tripId) => {
-        if (!confirm('Are you sure you want to delete this trip?')) return
+        if (!window.confirm('Are you sure you want to delete this trip?')) return
 
-        setDeletingTrip(tripId)
+        const id = typeof tripId === 'object' ? (tripId._id || tripId.id) : tripId
+        setDeletingTrip(id)
         try {
-            await deleteTrip(tripId)
+            await deleteTrip(id)
             toast({
                 title: "Trip Deleted",
                 description: "Your trip has been successfully deleted.",

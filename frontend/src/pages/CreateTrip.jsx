@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTrip } from '../context/TripContext'
+import { useToast } from '../hooks/use-toast'
 import { 
   MapPin, 
   Calendar, 

@@ -132,7 +132,7 @@ export const TripProvider = ({ children }) => {
       console.log('Deleting trip:', tripId)
       
       // Make sure we're using the correct ID format
-      const id = tripId._id || tripId.id || tripId
+      const id = typeof tripId === 'object' ? (tripId._id || tripId.id) : tripId
       
       const response = await fetch(`http://localhost:5000/api/trips/${id}`, {
         method: 'DELETE',
@@ -151,11 +151,11 @@ export const TripProvider = ({ children }) => {
       // Update the trips list by removing the deleted trip
       setTrips(prev => prev.filter(trip => {
         const currentTripId = trip._id || trip.id
-        return currentTripId !== id
+        return String(currentTripId) !== String(id)
       }))
       
       // Clear current trip if it was deleted
-      if (currentTrip && (currentTrip._id || currentTrip.id) === id) {
+      if (currentTrip && String(currentTrip._id || currentTrip.id) === String(id)) {
         setCurrentTrip(null)
       }
       
