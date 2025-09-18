@@ -14,7 +14,11 @@ import {
   Navigation,
   Camera,
   Leaf,
-  Download
+  Download,
+  Users,
+  Phone,
+  Globe,
+  MapIcon
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
@@ -56,6 +60,7 @@ const TripDetail = () => {
   }
 
   const formatDate = (date) => {
+    if (!date) return 'No date'
     const dateObj = date?.seconds ? new Date(date.seconds * 1000) : new Date(date)
     return dateObj.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -73,6 +78,12 @@ const TripDetail = () => {
       case 'transport': return '🚗'
       case 'shopping': return '🛍️'
       case 'nature': return '🌿'
+      case 'spiritual': return '🕉️'
+      case 'cultural': return '🏛️'
+      case 'sightseeing': return '👁️'
+      case 'entertainment': return '🎭'
+      case 'adventure': return '🏔️'
+      case 'relaxation': return '🧘'
       default: return '📍'
     }
   }
@@ -103,18 +114,36 @@ const TripDetail = () => {
             </Button>
           </div>
 
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              {currentTrip.fromLocation} → {currentTrip.destination}
-            </h1>
-            <p className="text-lg text-gray-600">
-              {currentTrip.days} days • {formatCurrency(currentTrip.totalBudget)} total budget • Created {formatDate(currentTrip.createdAt)}
-            </p>
-            {currentTrip.startDate && currentTrip.endDate && (
-              <p className="text-gray-500">
-                {formatDate(currentTrip.startDate)} - {formatDate(currentTrip.endDate)}
-              </p>
-            )}
+          {/* Hero Section */}
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white">
+            <div className="absolute inset-0 bg-black/20" />
+            <div className="relative p-8 md:p-12">
+              <div className="max-w-4xl">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                  {currentTrip.fromLocation && `${currentTrip.fromLocation} → `}
+                  {currentTrip.destination}
+                </h1>
+                <div className="flex flex-wrap items-center gap-6 text-lg">
+                  <div className="flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    {currentTrip.days} days
+                  </div>
+                  <div className="flex items-center">
+                    <DollarSign className="h-5 w-5 mr-2" />
+                    {formatCurrency(currentTrip.totalBudget || currentTrip.itinerary?.estimatedCost?.total || 0)}
+                  </div>
+                  <div className="flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    {currentTrip.travelType || 'Solo'} • {currentTrip.memberCount || 1} {(currentTrip.memberCount || 1) === 1 ? 'person' : 'people'}
+                  </div>
+                </div>
+                {currentTrip.startDate && currentTrip.endDate && (
+                  <p className="text-blue-100 mt-4">
+                    {formatDate(currentTrip.startDate)} - {formatDate(currentTrip.endDate)}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -125,7 +154,7 @@ const TripDetail = () => {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
         >
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-purple-100 rounded-lg">
@@ -144,7 +173,7 @@ const TripDetail = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
@@ -157,7 +186,7 @@ const TripDetail = () => {
                   </p>
                   {currentTrip.memberCount > 1 && (
                     <p className="text-xs text-gray-500">
-                      ₹{Math.round((currentTrip.itinerary?.estimatedCost?.total || 0) / currentTrip.memberCount).toLocaleString('en-IN')} per person
+                      {formatCurrency(Math.round((currentTrip.itinerary?.estimatedCost?.total || currentTrip.totalBudget) / currentTrip.memberCount))} per person
                     </p>
                   )}
                 </div>
@@ -165,7 +194,7 @@ const TripDetail = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 rounded-lg">
@@ -176,12 +205,15 @@ const TripDetail = () => {
                   <p className="text-2xl font-bold text-gray-900">
                     {currentTrip.days} days
                   </p>
+                  <p className="text-xs text-gray-500">
+                    Created {formatDate(currentTrip.createdAt)}
+                  </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 rounded-lg">
@@ -190,8 +222,9 @@ const TripDetail = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Carbon Footprint</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {currentTrip.itinerary?.carbonFootprint?.total || 'N/A'} kg CO₂
+                    {currentTrip.itinerary?.carbonFootprint?.total || 'N/A'}
                   </p>
+                  <p className="text-xs text-gray-500">kg CO₂</p>
                 </div>
               </div>
             </CardContent>
@@ -199,27 +232,29 @@ const TripDetail = () => {
         </motion.div>
 
         {/* Preferences */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Preferences</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {currentTrip.preferences?.map((preference, index) => (
-                  <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-700">
-                    {preference}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        {currentTrip.preferences && currentTrip.preferences.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Preferences</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {currentTrip.preferences.map((preference, index) => (
+                    <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-700">
+                      {preference}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Itinerary */}
         <motion.div
@@ -235,123 +270,182 @@ const TripDetail = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="day-1" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5 mb-6">
-                  {currentTrip.itinerary?.days?.map((day) => (
-                    <TabsTrigger key={day.day} value={`day-${day.day}`}>
-                      Day {day.day}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+              {currentTrip.itinerary?.days && currentTrip.itinerary.days.length > 0 ? (
+                <Tabs defaultValue="day-1" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5 mb-6 overflow-x-auto">
+                    {currentTrip.itinerary.days.map((day) => (
+                      <TabsTrigger key={day.day} value={`day-${day.day}`} className="whitespace-nowrap">
+                        Day {day.day}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
 
-                {currentTrip.itinerary?.days?.map((day) => (
-                  <TabsContent key={day.day} value={`day-${day.day}`} className="space-y-4">
-                    <div className="text-center mb-6">
-                      <h3 className="text-2xl font-bold text-gray-900">{day.title}</h3>
-                      <p className="text-gray-600">Day {day.day} of {currentTrip.days}</p>
-                    </div>
+                  {currentTrip.itinerary.days.map((day) => (
+                    <TabsContent key={day.day} value={`day-${day.day}`} className="space-y-4">
+                      <div className="text-center mb-6">
+                        <h3 className="text-2xl font-bold text-gray-900">{day.title}</h3>
+                        <p className="text-gray-600">Day {day.day} of {currentTrip.days}</p>
+                      </div>
 
-                    <div className="space-y-4">
-                      {day.activities?.length > 0 ? (
-                        day.activities.map((activity, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                          >
-                            <Card className="card-hover">
-                              <CardContent className="p-6 bg-white">
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <div className="flex items-center mb-2">
-                                      <span className="text-2xl mr-3">{getActivityIcon(activity.type)}</span>
-                                      <div>
-                                        <h4 className="text-lg font-semibold text-gray-900">
-                                          {activity.name}
-                                        </h4>
-                                        <div className="flex items-center text-sm text-gray-500 space-x-4">
-                                          <span className="flex items-center">
-                                            <Clock className="h-4 w-4 mr-1" />
-                                            {activity.time}
-                                          </span>
-                                          <span className="flex items-center">
-                                            <Calendar className="h-4 w-4 mr-1" />
-                                            {activity.duration}
-                                          </span>
-                                          <span className="flex items-center">
-                                            {formatCurrency(activity.cost || 0)}
-                                          </span>
+                      <div className="space-y-4">
+                        {day.activities && day.activities.length > 0 ? (
+                          day.activities.map((activity, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                            >
+                              <Card className="card-hover overflow-hidden">
+                                <CardContent className="p-6">
+                                  <div className="flex flex-col lg:flex-row gap-6">
+                                    {/* Activity Photos */}
+                                    {activity.photos && activity.photos.length > 0 && (
+                                      <div className="lg:w-1/3">
+                                        <div className="grid grid-cols-2 gap-2">
+                                          {activity.photos.slice(0, 4).map((photo, photoIndex) => (
+                                            <img
+                                              key={photoIndex}
+                                              src={photo}
+                                              alt={activity.name}
+                                              className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                                              onError={(e) => {
+                                                e.target.style.display = 'none'
+                                              }}
+                                            />
+                                          ))}
                                         </div>
                                       </div>
+                                    )}
+
+                                    {/* Activity Details */}
+                                    <div className="flex-1">
+                                      <div className="flex items-start justify-between mb-4">
+                                        <div className="flex-1">
+                                          <div className="flex items-center mb-2">
+                                            <span className="text-2xl mr-3">{getActivityIcon(activity.type)}</span>
+                                            <div>
+                                              <h4 className="text-lg font-semibold text-gray-900">
+                                                {activity.name}
+                                              </h4>
+                                              <div className="flex items-center text-sm text-gray-500 space-x-4">
+                                                <span className="flex items-center">
+                                                  <Clock className="h-4 w-4 mr-1" />
+                                                  {activity.time}
+                                                </span>
+                                                <span className="flex items-center">
+                                                  <Calendar className="h-4 w-4 mr-1" />
+                                                  {activity.duration}
+                                                </span>
+                                                <span className="flex items-center">
+                                                  <DollarSign className="h-4 w-4 mr-1" />
+                                                  {formatCurrency(activity.cost || 0)}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <p className="text-gray-600 mb-3">{activity.description}</p>
+
+                                          {activity.address && (
+                                            <p className="text-sm text-gray-500 flex items-center mb-3">
+                                              <MapPin className="h-4 w-4 mr-1" />
+                                              {activity.address}
+                                            </p>
+                                          )}
+
+                                          {activity.rating && (
+                                            <div className="flex items-center mb-3">
+                                              <Star className="h-4 w-4 text-yellow-400 mr-1 fill-current" />
+                                              <span className="text-sm font-medium">{activity.rating}</span>
+                                              <span className="text-sm text-gray-500 ml-1">Google Rating</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Action Buttons */}
+                                      <div className="flex flex-wrap gap-2">
+                                        {activity.googleMapsUrl && (
+                                          <Button
+                                            asChild
+                                            size="sm"
+                                            className="bg-blue-600 hover:bg-blue-700"
+                                          >
+                                            <a
+                                              href={activity.googleMapsUrl}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="flex items-center"
+                                            >
+                                              <Navigation className="mr-2 h-4 w-4" />
+                                              Navigate
+                                            </a>
+                                          </Button>
+                                        )}
+
+                                        {activity.phoneNumber && (
+                                          <Button
+                                            asChild
+                                            size="sm"
+                                            variant="outline"
+                                          >
+                                            <a
+                                              href={`tel:${activity.phoneNumber}`}
+                                              className="flex items-center"
+                                            >
+                                              <Phone className="mr-2 h-4 w-4" />
+                                              Call
+                                            </a>
+                                          </Button>
+                                        )}
+
+                                        {activity.website && (
+                                          <Button
+                                            asChild
+                                            size="sm"
+                                            variant="outline"
+                                          >
+                                            <a
+                                              href={activity.website}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="flex items-center"
+                                            >
+                                              <Globe className="mr-2 h-4 w-4" />
+                                              Website
+                                            </a>
+                                          </Button>
+                                        )}
+                                      </div>
                                     </div>
-
-                                    <p className="text-gray-600 mb-3">{activity.description}</p>
-
-                                    {activity.address && (
-                                      <p className="text-sm text-gray-500 flex items-center mb-3">
-                                        <MapPin className="h-4 w-4 mr-1" />
-                                        {activity.address}
-                                      </p>
-                                    )}
-
-                                    {activity.rating && (
-                                      <div className="flex items-center mb-3">
-                                        <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                                        <span className="text-sm font-medium">{activity.rating}</span>
-                                        <span className="text-sm text-gray-500 ml-1">Google Rating</span>
-                                      </div>
-                                    )}
-
-                                    {/* Photos */}
-                                    {activity.photos && activity.photos.length > 0 && (
-                                      <div className="flex space-x-2 mb-4 bg-transparent">
-                                        {activity.photos.slice(0, 3).map((photo, photoIndex) => (
-                                          <img
-                                            key={photoIndex}
-                                            src={photo}
-                                            alt={activity.name}
-                                            className="w-20 h-20 object-cover rounded-lg border border-gray-200"
-                                          />
-                                        ))}
-                                      </div>
-                                    )}
                                   </div>
-
-                                  <div className="ml-4">
-                                    <Button
-                                      asChild
-                                      size="sm"
-                                      className="bg-blue-600 hover:bg-blue-700"
-                                    >
-                                      <a
-                                        href={activity.googleMapsUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center"
-                                      >
-                                        <Navigation className="mr-2 h-4 w-4" />
-                                        Maps
-                                      </a>
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        ))
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-600 mb-4">No activities planned for this day.</p>
-                          <Button asChild variant="outline">
-                            <Link to="/create-trip">Explore Destinations</Link>
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
+                                </CardContent>
+                              </Card>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8">
+                            <p className="text-gray-600 mb-4">No activities planned for this day.</p>
+                            <Button asChild variant="outline">
+                              <Link to="/create-trip">Plan Activities</Link>
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              ) : (
+                <div className="text-center py-12">
+                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Itinerary Available</h3>
+                  <p className="text-gray-600 mb-4">This trip doesn't have a detailed itinerary yet.</p>
+                  <Button asChild>
+                    <Link to="/create-trip">Create New Trip</Link>
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

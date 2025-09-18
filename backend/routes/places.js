@@ -1,5 +1,5 @@
 const express = require('express')
-const { autocompleteSearch } = require('../services/autocompleteService')
+const { autocompleteSearch } = require('../services/placesService')
 
 const router = express.Router()
 

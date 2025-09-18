@@ -25,7 +25,6 @@ import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { Badge } from '../components/ui/badge'
-import { useToast } from '../hooks/use-toast'
 import PlaceAutocomplete from '../components/PlaceAutocomplete'
 
 const CreateTrip = () => {
@@ -33,7 +32,6 @@ const CreateTrip = () => {
   const { user, isAuthenticated } = useAuth()
   const { createTrip, generating } = useTrip()
   const { formatCurrency } = useCurrency()
-  const { toast } = useToast()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -77,14 +75,9 @@ const CreateTrip = () => {
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to create a trip.",
-        variant: "destructive"
-      })
       navigate('/')
     }
-  }, [isAuthenticated, navigate, toast])
+  }, [isAuthenticated, navigate])
 
   // Calculate days when dates change
   useEffect(() => {
@@ -226,12 +219,6 @@ const CreateTrip = () => {
   const handleNext = () => {
     if (validateStep(step)) {
       setStep(prev => prev + 1)
-    } else {
-      toast({
-        title: "Validation Error",
-        description: "Please fix the errors before continuing.",
-        variant: "destructive"
-      })
     }
   }
 
@@ -243,11 +230,6 @@ const CreateTrip = () => {
     e.preventDefault()
     
     if (!validateStep(3)) {
-      toast({
-        title: "Validation Error",
-        description: "Please fix all errors before creating your trip.",
-        variant: "destructive"
-      })
       return
     }
 
@@ -260,19 +242,10 @@ const CreateTrip = () => {
       const newTrip = await createTrip(tripData)
       
       if (newTrip) {
-        toast({
-          title: "Trip Created Successfully! 🎉",
-          description: `Your ${formData.days}-day trip to ${formData.destination} is ready!`,
-        })
         navigate(`/trip/${newTrip._id || newTrip.id}`)
       }
     } catch (error) {
       console.error('Error creating trip:', error)
-      toast({
-        title: "Error Creating Trip",
-        description: error.message || "Something went wrong. Please try again.",
-        variant: "destructive"
-      })
     }
   }
 
