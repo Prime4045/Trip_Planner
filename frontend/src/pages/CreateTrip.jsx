@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useTrip } from '../context/TripContext'
 import { useCurrency } from '../context/CurrencyContext'
+import { useToast } from '../hooks/use-toast'
 import {
     MapPin,
     Calendar,
