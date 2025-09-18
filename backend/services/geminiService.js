@@ -64,7 +64,7 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional te
 // Helper function to get location-specific interests as fallback
 const getLocationSpecificInterests = (destination) => {
   const dest = destination.toLowerCase()
-  
+
   if (dest.includes('istanbul') || dest.includes('turkey')) {
     return ['Historic Mosques', 'Turkish Cuisine', 'Bosphorus Cruise', 'Grand Bazaar Shopping']
   } else if (dest.includes('paris') || dest.includes('france')) {
@@ -99,7 +99,7 @@ const generateItinerary = async (tripData) => {
     const memberCount = tripData.memberCount || 1
     const baseBudgetPerPerson = {
       low: 2000,
-      medium: 5000, 
+      medium: 5000,
       high: 12000
     }
     const dailyBudgetTotal = baseBudgetPerPerson[tripData.budget] * memberCount
@@ -247,19 +247,19 @@ IMPORTANT: Respond ONLY with valid JSON, no markdown formatting or additional te
 const enhanceWithRealPhotos = async (itinerary) => {
   try {
     console.log('Enhancing itinerary with real photos...')
-    
+
     for (const day of itinerary.days) {
       for (const activity of day.activities) {
         try {
           // Search for the place using RapidAPI
           const places = await textSearchPlaces(activity.name, itinerary.destination)
-          
+
           if (places && places.length > 0) {
             const place = places[0]
-            
+
             // Get photos for this place
             const photos = await getPlacePhotos(place.placeId)
-            
+
             if (photos && photos.length > 0) {
               activity.photos = photos
               activity.placeId = place.placeId
@@ -272,7 +272,7 @@ const enhanceWithRealPhotos = async (itinerary) => {
         }
       }
     }
-    
+
     return itinerary
   } catch (error) {
     console.error('Error enhancing with photos:', error)
@@ -376,14 +376,14 @@ const validateAndEnhanceItinerary = (itinerary, tripData) => {
     const totalCost = enhanced.days.reduce((sum, day) => {
       return sum + day.activities.reduce((daySum, activity) => daySum + (activity.cost || 0), 0)
     }, 0)
-    
+
     const properTotal = dailyBudgetTotal * tripData.days
     enhanced.estimatedCost.total = properTotal
     enhanced.estimatedCost.accommodation = Math.round(properTotal * 0.4)
     enhanced.estimatedCost.food = Math.round(properTotal * 0.3)
     enhanced.estimatedCost.activities = Math.round(properTotal * 0.2)
     enhanced.estimatedCost.transport = Math.round(properTotal * 0.1)
-   
+
   }
 
   return enhanced
@@ -409,18 +409,12 @@ const generateFallbackItinerary = (tripData) => {
     memberCount: memberCount,
     travelType: tripData.travelType,
     estimatedCost: {
-      total: dailyBudgetTotal * tripData.days,
-      accommodation: Math.round(dailyBudgetTotal * 0.4 * tripData.days),
-      food: Math.round(dailyBudgetTotal * 0.3 * tripData.days),
-      activities: Math.round(dailyBudgetTotal * 0.2 * tripData.days),
-      transport: Math.round(dailyBudgetTotal * 0.1 * tripData.days),
-      currency: "INR"
       total: tripData.totalBudget,
-      accommodation: dailyBudget * 0.4 * tripData.days,
-      food: dailyBudget * 0.3 * tripData.days,
-      activities: dailyBudget * 0.2 * tripData.days,
-      transport: dailyBudget * 0.1 * tripData.days,
-      currency: "USD"
+      accommodation: Math.round(dailyBudget * 0.4 * tripData.days),
+      food: Math.round(dailyBudget * 0.3 * tripData.days),
+      activities: Math.round(dailyBudget * 0.2 * tripData.days),
+      transport: Math.round(dailyBudget * 0.1 * tripData.days),
+      currency: "INR"
     },
     carbonFootprint: {
       total: calculateCarbonFootprint(tripData.destination, tripData.days),
@@ -493,13 +487,13 @@ const getDestinationCarbonMultiplier = (destination) => {
   return 0.8 // Default multiplier
   // Simple multiplier based on typical travel distance
   const lowerCaseDestination = destination.toLowerCase()
-  
+
   if (lowerCaseDestination.includes('europe') || lowerCaseDestination.includes('usa')) {
     return 1.5 // Higher for international travel
   } else if (lowerCaseDestination.includes('asia')) {
     return 1.2
   }
-  
+
   return 1.0 // Default multiplier
 }
 

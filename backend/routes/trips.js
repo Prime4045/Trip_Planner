@@ -11,14 +11,14 @@ const router = express.Router()
 router.post('/destination-info', async (req, res) => {
   try {
     const { destination } = req.body
-    
+
     if (!destination) {
       return res.status(400).json({ message: 'Destination is required' })
     }
 
     console.log('Getting destination info for:', destination)
     const destinationInfo = await getDestinationInfo(destination)
-    
+
     res.json(destinationInfo)
   } catch (error) {
     console.error('Destination info error:', error)
@@ -68,11 +68,10 @@ router.post('/', requiresAuth(), [
   body('budget').isIn(['low', 'medium', 'high']).withMessage('Invalid budget option'),
   body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required'),
   body('travelType').isIn(['solo', 'couple', 'friends', 'family']).withMessage('Invalid travel type'),
-  body('memberCount').optional().isInt({ min: 1, max: 10 }).withMessage('Member count must be between 1 and 10')
+  body('memberCount').optional().isInt({ min: 1, max: 10 }).withMessage('Member count must be between 1 and 10'),
   body('startDate').isISO8601().withMessage('Valid start date is required'),
   body('endDate').isISO8601().withMessage('Valid end date is required'),
-  body('totalBudget').isInt({ min: 1 }).withMessage('Total budget must be a positive number'),
-  body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required')
+  body('totalBudget').isInt({ min: 1 }).withMessage('Total budget must be a positive number')
 ], async (req, res) => {
   try {
     console.log('Creating trip for user:', req.user._id)
@@ -84,21 +83,8 @@ router.post('/', requiresAuth(), [
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { fromLocation, destination, startDate, endDate, totalBudget, preferences } = req.body
-
-    // Calculate days from dates
-    const start = new Date(startDate)
-    const end = new Date(endDate)
-    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24))
-
-    if (days <= 0 || days > 365) {
-      return res.status(400).json({ message: 'Invalid date range. Trip must be between 1 and 365 days.' })
-    }
-
-
-    console.log('Calling Gemini API to generate itinerary...')
-    // Generate AI itinerary
-    const aiItinerary = await generateItinerary({
+    // Destructure all required fields
+    const {
       fromLocation,
       destination,
       startDate,
@@ -107,10 +93,36 @@ router.post('/', requiresAuth(), [
       budget,
       preferences,
       travelType,
-      memberCount: memberCount || 1
-      totalBudget,
-      preferences
-    })
+      memberCount,
+      totalBudget
+    } = req.body;
+
+    // Calculate days from dates if not provided
+    let tripDays = days;
+    if (!tripDays && startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      tripDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    }
+
+    if (tripDays <= 0 || tripDays > 365) {
+      return res.status(400).json({ message: 'Invalid date range. Trip must be between 1 and 365 days.' })
+    }
+
+    console.log('Calling Gemini API to generate itinerary...');
+    // Generate AI itinerary
+    const aiItinerary = await generateItinerary({
+      fromLocation,
+      destination,
+      startDate,
+      endDate,
+      days: tripDays,
+      budget,
+      preferences,
+      travelType,
+      memberCount: memberCount || 1,
+      totalBudget
+    });
 
     console.log('Itinerary generated successfully')
 
@@ -125,12 +137,12 @@ router.post('/', requiresAuth(), [
       destination,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      days,
+      days: tripDays,
       totalBudget,
       preferences,
       travelType,
       memberCount: memberCount || 1,
-      itinerary: aiItinerary
+      itinerary: enrichedItinerary
     })
 
     await trip.save()
@@ -140,7 +152,7 @@ router.post('/', requiresAuth(), [
     await User.findByIdAndUpdate(req.user._id, {
       $inc: {
         'stats.totalTrips': 1,
-        'stats.totalDays': days,
+        'stats.totalDays': tripDays,
         'stats.totalSpent': totalBudget
       }
     })
@@ -193,7 +205,7 @@ router.delete('/:id', requiresAuth(), async (req, res) => {
   try {
     console.log('Delete request for trip ID:', req.params.id)
     console.log('User ID:', req.user._id)
-    
+
     const trip = await Trip.findOneAndDelete({
       _id: req.params.id,
       userId: req.user._id
@@ -205,7 +217,7 @@ router.delete('/:id', requiresAuth(), async (req, res) => {
     }
 
     console.log('Trip deleted successfully:', trip._id)
-    
+
     // Update user stats
     await User.findByIdAndUpdate(req.user._id, {
       $inc: {
