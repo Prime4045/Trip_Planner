@@ -13,6 +13,450 @@ A full-stack AI-powered trip planning application that creates personalized trav
 - **📊 Trip Analytics**: Personal travel statistics and insights
 - **🌐 Google Maps Integration**: Direct navigation links to all locations
 
+## 📊 System Analysis & Design
+
+### 🎯 Use Case Diagram
+
+```mermaid
+graph TB
+    %% Actors
+    Guest[👤 Guest User]
+    User[👤 Registered User]
+    Admin[👤 Admin]
+    GeminiAI[🤖 Gemini AI]
+    Auth0[🔐 Auth0]
+    GoogleAPI[🗺️ Google Places API]
+    
+    %% Use Cases
+    subgraph "Authentication System"
+        UC1[Sign Up/Login]
+        UC2[Logout]
+        UC3[View Profile]
+        UC4[Update Profile]
+    end
+    
+    subgraph "Trip Planning System"
+        UC5[Browse Destinations]
+        UC6[Create Trip]
+        UC7[Generate AI Itinerary]
+        UC8[View Trip Details]
+        UC9[Edit Trip]
+        UC10[Delete Trip]
+        UC11[Export Trip PDF]
+    end
+    
+    subgraph "Community Features"
+        UC12[View Community Trips]
+        UC13[Share Trip]
+        UC14[Like/Comment on Trips]
+        UC15[Follow Users]
+    end
+    
+    subgraph "Content Management"
+        UC16[Read Blog Posts]
+        UC17[Search Destinations]
+        UC18[Get Help/Support]
+        UC19[Contact Support]
+    end
+    
+    subgraph "Admin Functions"
+        UC20[Manage Users]
+        UC21[Manage Content]
+        UC22[View Analytics]
+        UC23[Moderate Community]
+    end
+    
+    %% Relationships
+    Guest --> UC1
+    Guest --> UC5
+    Guest --> UC12
+    Guest --> UC16
+    Guest --> UC17
+    Guest --> UC18
+    Guest --> UC19
+    
+    User --> UC1
+    User --> UC2
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    User --> UC6
+    User --> UC7
+    User --> UC8
+    User --> UC9
+    User --> UC10
+    User --> UC11
+    User --> UC12
+    User --> UC13
+    User --> UC14
+    User --> UC15
+    User --> UC16
+    User --> UC17
+    User --> UC18
+    User --> UC19
+    
+    Admin --> UC20
+    Admin --> UC21
+    Admin --> UC22
+    Admin --> UC23
+    
+    %% External System Interactions
+    UC1 --> Auth0
+    UC7 --> GeminiAI
+    UC6 --> GoogleAPI
+    UC8 --> GoogleAPI
+```
+
+### 📈 Data Flow Diagram (DFD)
+
+#### Level 0 - Context Diagram
+
+```mermaid
+graph TB
+    %% External Entities
+    User[👤 User]
+    GuestUser[👤 Guest User]
+    GeminiAI[🤖 Gemini AI Service]
+    Auth0Service[🔐 Auth0 Service]
+    GooglePlaces[🗺️ Google Places API]
+    
+    %% Main System
+    TripPlannerSystem[🌍 AI Trip Planner System]
+    
+    %% Data Flows
+    User -->|Trip Preferences, User Data| TripPlannerSystem
+    TripPlannerSystem -->|Personalized Itineraries, Trip Data| User
+    
+    GuestUser -->|Browse Requests| TripPlannerSystem
+    TripPlannerSystem -->|Public Content, Destinations| GuestUser
+    
+    TripPlannerSystem -->|Trip Requirements| GeminiAI
+    GeminiAI -->|Generated Itineraries| TripPlannerSystem
+    
+    TripPlannerSystem -->|Authentication Requests| Auth0Service
+    Auth0Service -->|User Credentials, Tokens| TripPlannerSystem
+    
+    TripPlannerSystem -->|Place Queries| GooglePlaces
+    GooglePlaces -->|Place Details, Photos| TripPlannerSystem
+```
+
+#### Level 1 - System Overview
+
+```mermaid
+graph TB
+    %% External Entities
+    User[👤 User]
+    GuestUser[👤 Guest User]
+    GeminiAI[🤖 Gemini AI]
+    Auth0[🔐 Auth0]
+    GoogleAPI[🗺️ Google Places API]
+    
+    %% Main Processes
+    P1[1.0 User Authentication]
+    P2[2.0 Trip Planning]
+    P3[3.0 Content Management]
+    P4[4.0 Community Features]
+    P5[5.0 Data Management]
+    
+    %% Data Stores
+    DS1[(D1: User Database)]
+    DS2[(D2: Trip Database)]
+    DS3[(D3: Content Database)]
+    DS4[(D4: Community Database)]
+    
+    %% Data Flows
+    User -->|Login Credentials| P1
+    P1 -->|Authentication Request| Auth0
+    Auth0 -->|User Token| P1
+    P1 -->|User Data| DS1
+    P1 -->|Authenticated User| User
+    
+    User -->|Trip Preferences| P2
+    P2 -->|AI Request| GeminiAI
+    GeminiAI -->|Generated Itinerary| P2
+    P2 -->|Place Query| GoogleAPI
+    GoogleAPI -->|Place Data| P2
+    P2 -->|Trip Data| DS2
+    P2 -->|Completed Trip| User
+    
+    User -->|Content Request| P3
+    GuestUser -->|Browse Request| P3
+    P3 -->|Content Data| DS3
+    P3 -->|Content| User
+    P3 -->|Public Content| GuestUser
+    
+    User -->|Community Action| P4
+    P4 -->|Community Data| DS4
+    P4 -->|Community Content| User
+    
+    P2 -->|Trip Data| P5
+    P4 -->|Community Data| P5
+    P5 -->|Stored Data| DS2
+    P5 -->|Stored Data| DS4
+```
+
+#### Level 2 - Trip Planning Process Detail
+
+```mermaid
+graph TB
+    %% External Entities
+    User[👤 User]
+    GeminiAI[🤖 Gemini AI]
+    GoogleAPI[🗺️ Google Places API]
+    
+    %% Sub-processes
+    P21[2.1 Collect Trip Requirements]
+    P22[2.2 Validate Input Data]
+    P23[2.3 Generate AI Itinerary]
+    P24[2.4 Enhance with Real Data]
+    P25[2.5 Store Trip Data]
+    P26[2.6 Present Trip to User]
+    
+    %% Data Stores
+    DS1[(D1: User Preferences)]
+    DS2[(D2: Trip Database)]
+    DS3[(D3: Place Cache)]
+    
+    %% Data Flows
+    User -->|Destination, Dates, Budget, Preferences| P21
+    P21 -->|Raw Trip Data| P22
+    P21 -->|User Preferences| DS1
+    
+    P22 -->|Validated Data| P23
+    P22 -->|Validation Errors| User
+    
+    P23 -->|Trip Parameters| GeminiAI
+    GeminiAI -->|AI Generated Itinerary| P23
+    P23 -->|Base Itinerary| P24
+    
+    P24 -->|Place Queries| GoogleAPI
+    GoogleAPI -->|Place Details, Photos| P24
+    P24 -->|Place Data| DS3
+    P24 -->|Enhanced Itinerary| P25
+    
+    P25 -->|Complete Trip| DS2
+    P25 -->|Trip ID| P26
+    
+    P26 -->|Trip Data| DS2
+    P26 -->|Final Itinerary| User
+```
+
+### 🗄️ Entity Relationship Diagram (ERD)
+
+```mermaid
+erDiagram
+    %% User Management
+    USER {
+        string user_id PK
+        string auth0_id UK
+        string name
+        string email UK
+        string avatar
+        string google_avatar
+        json preferences
+        json stats
+        datetime created_at
+        datetime last_login
+        datetime updated_at
+    }
+    
+    %% Trip Management
+    TRIP {
+        string trip_id PK
+        string user_id FK
+        string from_location
+        string destination
+        date start_date
+        date end_date
+        int days
+        decimal total_budget
+        string budget_category
+        string travel_type
+        int member_count
+        json preferences
+        boolean with_children
+        boolean with_pets
+        string status
+        boolean is_public
+        int likes
+        int views
+        datetime created_at
+        datetime updated_at
+    }
+    
+    ITINERARY {
+        string itinerary_id PK
+        string trip_id FK
+        string destination
+        int total_days
+        int member_count
+        string travel_type
+        date start_date
+        date end_date
+        json estimated_cost
+        json carbon_footprint
+        datetime created_at
+    }
+    
+    DAY_PLAN {
+        string day_id PK
+        string itinerary_id FK
+        int day_number
+        string title
+        datetime created_at
+    }
+    
+    ACTIVITY {
+        string activity_id PK
+        string day_id FK
+        string time
+        string name
+        text description
+        string duration
+        decimal cost
+        string type
+        string location
+        string place_id
+        decimal rating
+        string address
+        json photos
+        string google_maps_url
+        string phone_number
+        string website
+        int order_index
+    }
+    
+    %% Community Features
+    COMMUNITY_POST {
+        string post_id PK
+        string user_id FK
+        string trip_id FK
+        string title
+        text description
+        json tags
+        json highlights
+        string image_url
+        int likes
+        int comments
+        int shares
+        boolean is_featured
+        datetime created_at
+        datetime updated_at
+    }
+    
+    POST_LIKE {
+        string like_id PK
+        string post_id FK
+        string user_id FK
+        datetime created_at
+    }
+    
+    POST_COMMENT {
+        string comment_id PK
+        string post_id FK
+        string user_id FK
+        text content
+        datetime created_at
+        datetime updated_at
+    }
+    
+    USER_FOLLOW {
+        string follow_id PK
+        string follower_id FK
+        string following_id FK
+        datetime created_at
+    }
+    
+    %% Content Management
+    DESTINATION {
+        string destination_id PK
+        string name
+        string country
+        string continent
+        json coordinates
+        text description
+        json tags
+        decimal avg_cost_per_day
+        json best_time_to_visit
+        string climate
+        int popularity
+        json images
+        json attractions
+        datetime created_at
+        datetime updated_at
+    }
+    
+    BLOG_POST {
+        string post_id PK
+        string author_id FK
+        string title
+        string slug UK
+        text excerpt
+        text content
+        string category
+        json tags
+        string featured_image
+        boolean is_published
+        int likes
+        int bookmarks
+        datetime published_at
+        datetime created_at
+        datetime updated_at
+    }
+    
+    %% Place Data Cache
+    PLACE_CACHE {
+        string place_id PK
+        string google_place_id UK
+        string name
+        decimal rating
+        string address
+        json location
+        json photos
+        int price_level
+        json types
+        json opening_hours
+        string website
+        string phone_number
+        datetime cached_at
+        datetime expires_at
+    }
+    
+    %% System Logs
+    ACTIVITY_LOG {
+        string log_id PK
+        string user_id FK
+        string action_type
+        string resource_type
+        string resource_id
+        json metadata
+        string ip_address
+        string user_agent
+        datetime created_at
+    }
+    
+    %% Relationships
+    USER ||--o{ TRIP : creates
+    USER ||--o{ COMMUNITY_POST : shares
+    USER ||--o{ POST_LIKE : likes
+    USER ||--o{ POST_COMMENT : comments
+    USER ||--o{ USER_FOLLOW : follows
+    USER ||--o{ USER_FOLLOW : followed_by
+    USER ||--o{ BLOG_POST : authors
+    USER ||--o{ ACTIVITY_LOG : performs
+    
+    TRIP ||--|| ITINERARY : has
+    TRIP ||--o{ COMMUNITY_POST : featured_in
+    
+    ITINERARY ||--o{ DAY_PLAN : contains
+    DAY_PLAN ||--o{ ACTIVITY : includes
+    
+    COMMUNITY_POST ||--o{ POST_LIKE : receives
+    COMMUNITY_POST ||--o{ POST_COMMENT : has
+    
+    ACTIVITY }o--|| PLACE_CACHE : references
+```
+
 ## 🏗️ Architecture
 
 ### Frontend (React + Vite)
