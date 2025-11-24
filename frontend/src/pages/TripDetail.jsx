@@ -129,7 +129,6 @@ const TripDetail = () => {
                     {currentTrip.days} days
                   </div>
                   <div className="flex items-center">
-                    <DollarSign className="h-5 w-5 mr-2" />
                     {formatCurrency(currentTrip.totalBudget || currentTrip.itinerary?.estimatedCost?.total || 0)}
                   </div>
                   <div className="flex items-center">
@@ -301,7 +300,7 @@ const TripDetail = () => {
                                   <div className="flex flex-col lg:flex-row gap-6">
                                     {/* Activity Photos */}
                                     {activity.photos && activity.photos.length > 0 && (
-                                      <div className="lg:w-1/3">
+                                      <div className="lg:w-1/3 order-2">
                                         <div className="grid grid-cols-2 gap-2">
                                           {activity.photos.slice(0, 4).map((photo, photoIndex) => (
                                             <img
@@ -319,7 +318,7 @@ const TripDetail = () => {
                                     )}
 
                                     {/* Activity Details */}
-                                    <div className="flex-1">
+                                    <div className="flex-1 order-1">
                                       <div className="flex items-start justify-between mb-4">
                                         <div className="flex-1">
                                           <div className="flex items-center mb-2">
@@ -338,7 +337,6 @@ const TripDetail = () => {
                                                   {activity.duration}
                                                 </span>
                                                 <span className="flex items-center">
-                                                  <DollarSign className="h-4 w-4 mr-1" />
                                                   {formatCurrency(activity.cost || 0)}
                                                 </span>
                                               </div>

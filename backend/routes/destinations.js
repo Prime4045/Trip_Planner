@@ -64,7 +64,7 @@ router.get('/search', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const destination = await Destination.findById(req.params.id).select('-__v')
-    
+
     if (!destination) {
       return res.status(404).json({ message: 'Destination not found' })
     }

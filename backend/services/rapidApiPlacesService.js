@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || 'eff3a486camsh086d6b63316604dp1dd9dajsn34941bd67005'
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY
 const RAPIDAPI_HOST = 'google-map-places-new-v2.p.rapidapi.com'
 const BASE_URL = 'https://google-map-places-new-v2.p.rapidapi.com'
 

@@ -28,13 +28,13 @@ export const AuthProvider = ({ children }) => {
           'Content-Type': 'application/json',
         }
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch auth status')
       }
-      
+
       const data = await response.json()
-      
+
       if (data.isAuthenticated) {
         setUser(data.user)
         setIsAuthenticated(true)

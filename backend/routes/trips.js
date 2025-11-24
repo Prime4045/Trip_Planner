@@ -64,14 +64,10 @@ router.get('/:id', requiresAuth(), async (req, res) => {
 router.post('/', requiresAuth(), [
   body('fromLocation').trim().isLength({ min: 2 }).withMessage('Starting location is required'),
   body('destination').trim().isLength({ min: 2 }).withMessage('Destination is required'),
-  body('days').isInt({ min: 1, max: 30 }).withMessage('Days must be between 1 and 30'),
-  body('budget').isIn(['low', 'medium', 'high']).withMessage('Invalid budget option'),
-  body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required'),
-  body('travelType').isIn(['solo', 'couple', 'friends', 'family']).withMessage('Invalid travel type'),
-  body('memberCount').optional().isInt({ min: 1, max: 10 }).withMessage('Member count must be between 1 and 10'),
   body('startDate').isISO8601().withMessage('Valid start date is required'),
   body('endDate').isISO8601().withMessage('Valid end date is required'),
-  body('totalBudget').isInt({ min: 1 }).withMessage('Total budget must be a positive number')
+  body('totalBudget').isInt({ min: 1 }).withMessage('Total budget must be a positive number'),
+  body('preferences').isArray({ min: 1 }).withMessage('At least one preference is required')
 ], async (req, res) => {
   try {
     console.log('Creating trip for user:', req.user._id)
@@ -83,46 +79,28 @@ router.post('/', requiresAuth(), [
       return res.status(400).json({ errors: errors.array() })
     }
 
-    // Destructure all required fields
-    const {
-      fromLocation,
-      destination,
-      startDate,
-      endDate,
-      days,
-      budget,
-      preferences,
-      travelType,
-      memberCount,
-      totalBudget
-    } = req.body;
+    const { fromLocation, destination, startDate, endDate, totalBudget, preferences } = req.body
 
-    // Calculate days from dates if not provided
-    let tripDays = days;
-    if (!tripDays && startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      tripDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-    }
+    // Calculate days from dates
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24))
 
-    if (tripDays <= 0 || tripDays > 365) {
+    if (days <= 0 || days > 365) {
       return res.status(400).json({ message: 'Invalid date range. Trip must be between 1 and 365 days.' })
     }
 
-    console.log('Calling Gemini API to generate itinerary...');
+    console.log('Calling Gemini API to generate itinerary...')
     // Generate AI itinerary
     const aiItinerary = await generateItinerary({
       fromLocation,
       destination,
       startDate,
       endDate,
-      days: tripDays,
-      budget,
-      preferences,
-      travelType,
-      memberCount: memberCount || 1,
-      totalBudget
-    });
+      days,
+      totalBudget,
+      preferences
+    })
 
     console.log('Itinerary generated successfully')
 
@@ -137,11 +115,9 @@ router.post('/', requiresAuth(), [
       destination,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      days: tripDays,
+      days,
       totalBudget,
       preferences,
-      travelType,
-      memberCount: memberCount || 1,
       itinerary: enrichedItinerary
     })
 
@@ -152,7 +128,7 @@ router.post('/', requiresAuth(), [
     await User.findByIdAndUpdate(req.user._id, {
       $inc: {
         'stats.totalTrips': 1,
-        'stats.totalDays': tripDays,
+        'stats.totalDays': days,
         'stats.totalSpent': totalBudget
       }
     })

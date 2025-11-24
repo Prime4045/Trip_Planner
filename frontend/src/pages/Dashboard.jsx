@@ -80,7 +80,7 @@ const Dashboard = () => {
             'italy': 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=400',
             'tokyo': 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400',
             'japan': 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400',
-            'paris': 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=400',
+            'paris': 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400',
             'france': 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=400',
             'london': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400',
             'uk': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400',

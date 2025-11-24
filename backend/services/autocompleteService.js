@@ -10,7 +10,7 @@ const autocompleteSearch = async (input) => {
       url: 'https://google-place-autocomplete-and-place-info.p.rapidapi.com/maps/api/place/autocomplete/json',
       params: { input: input },
       headers: {
-        'x-rapidapi-key': 'eff3a486camsh086d6b63316604dp1dd9dajsn34941bd67005',
+        'x-rapidapi-key': process.env.RAPIDAPI_KEY,
         'x-rapidapi-host': 'google-place-autocomplete-and-place-info.p.rapidapi.com'
       }
     }

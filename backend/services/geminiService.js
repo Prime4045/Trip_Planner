@@ -15,7 +15,7 @@ const getDestinationInfo = async (destination) => {
       }
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
     const prompt = `
 Provide destination information for ${destination} in JSON format with location-specific interests:
@@ -93,7 +93,7 @@ const generateItinerary = async (tripData) => {
 
     console.log('Generating itinerary with Gemini AI for:', `${tripData.fromLocation} to ${tripData.destination}`)
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
     // Calculate proper budget based on travel type and member count
     const memberCount = tripData.memberCount || 1
@@ -409,12 +409,18 @@ const generateFallbackItinerary = (tripData) => {
     memberCount: memberCount,
     travelType: tripData.travelType,
     estimatedCost: {
+      total: dailyBudgetTotal * tripData.days,
+      accommodation: Math.round(dailyBudgetTotal * 0.4 * tripData.days),
+      food: Math.round(dailyBudgetTotal * 0.3 * tripData.days),
+      activities: Math.round(dailyBudgetTotal * 0.2 * tripData.days),
+      transport: Math.round(dailyBudgetTotal * 0.1 * tripData.days),
+      currency: "INR",
       total: tripData.totalBudget,
-      accommodation: Math.round(dailyBudget * 0.4 * tripData.days),
-      food: Math.round(dailyBudget * 0.3 * tripData.days),
-      activities: Math.round(dailyBudget * 0.2 * tripData.days),
-      transport: Math.round(dailyBudget * 0.1 * tripData.days),
-      currency: "INR"
+      accommodation: dailyBudget * 0.4 * tripData.days,
+      food: dailyBudget * 0.3 * tripData.days,
+      activities: dailyBudget * 0.2 * tripData.days,
+      transport: dailyBudget * 0.1 * tripData.days,
+      currency: "USD"
     },
     carbonFootprint: {
       total: calculateCarbonFootprint(tripData.destination, tripData.days),

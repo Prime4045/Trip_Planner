@@ -1,13 +1,12 @@
 # 🌍 AI Trip Planner
 
-A full-stack AI-powered trip planning application that creates personalized travel itineraries using Google Gemini AI, with Auth0 authentication, Firebase integration, and Google Places API.
+A full-stack AI-powered trip planning application that creates personalized travel itineraries using Google Gemini AI, with Auth0 authentication and Google Places API.
 
 ## ✨ Features
 
 - **🤖 AI-Powered Itineraries**: Generate detailed day-by-day travel plans using Google Gemini AI
 - **🔐 Secure Authentication**: Auth0 integration with Google OAuth support
 - **🗺️ Real Place Data**: Google Places API integration with photos and ratings
-- **💾 Cloud Storage**: Firebase Firestore for real-time data synchronization
 - **📱 Responsive Design**: Beautiful, mobile-first UI with Tailwind CSS
 - **🎨 Modern UI Components**: ShadCN UI components with smooth animations
 - **📊 Trip Analytics**: Personal travel statistics and insights
@@ -460,6 +459,7 @@ erDiagram
 ## 🏗️ Architecture
 
 ### Frontend (React + Vite)
+
 - **Framework**: React 18 with Vite for fast development
 - **Styling**: Tailwind CSS + ShadCN UI components
 - **Authentication**: Auth0 React SDK
@@ -469,6 +469,7 @@ erDiagram
 - **Animations**: Framer Motion
 
 ### Backend (Node.js + Express)
+
 - **Framework**: Express.js with MongoDB
 - **Authentication**: JWT + Auth0 integration
 - **AI Service**: Google Gemini API integration
@@ -479,6 +480,7 @@ erDiagram
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - MongoDB (local or Atlas)
 - Auth0 account
@@ -486,6 +488,7 @@ erDiagram
 - Firebase project
 
 ### 1. Clone and Install
+
 ```bash
 git clone <repository-url>
 cd ai-trip-planner
@@ -503,20 +506,16 @@ cd ../backend && npm install
 ### 2. Environment Setup
 
 **Frontend (.env)**:
+
 ```env
 VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
 VITE_AUTH0_CLIENT_ID=your-auth0-client-id
-VITE_FIREBASE_API_KEY=your-firebase-api-key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
-VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
 VITE_GEMINI_API_KEY=your-gemini-api-key
 VITE_GOOGLE_PLACES_API_KEY=your-google-places-api-key
 ```
 
 **Backend (.env)**:
+
 ```env
 PORT=5000
 NODE_ENV=development
@@ -530,18 +529,14 @@ GOOGLE_PLACES_API_KEY=your-google-places-api-key
 ### 3. API Keys Setup
 
 #### Auth0 Setup
+
 1. Create Auth0 application
 2. Enable Google social connection
 3. Configure callback URLs: `http://localhost:3000`
 4. Get Domain and Client ID
 
-#### Firebase Setup
-1. Create Firebase project
-2. Enable Firestore database
-3. Get configuration object
-4. Set up security rules
-
 #### Google Cloud Setup
+
 1. Enable Gemini AI API
 2. Enable Places API
 3. Create API keys
@@ -587,11 +582,13 @@ ai-trip-planner/
 ## 🔧 API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/profile` - Get user profile
 
 ### Trips
+
 - `GET /api/trips` - Get user trips
 - `POST /api/trips` - Create new trip
 - `GET /api/trips/:id` - Get trip details
@@ -599,6 +596,7 @@ ai-trip-planner/
 - `DELETE /api/trips/:id` - Delete trip
 
 ### Places
+
 - `GET /api/places/search` - Search places
 - `GET /api/places/details/:placeId` - Get place details
 - `GET /api/places/photos/:placeId` - Get place photos
@@ -606,6 +604,7 @@ ai-trip-planner/
 ## 🎨 UI Components
 
 Built with ShadCN UI components:
+
 - **Cards**: Trip displays and information panels
 - **Forms**: Trip creation and user preferences
 - **Navigation**: Header with dropdown menus
@@ -631,6 +630,7 @@ Built with ShadCN UI components:
 ## 🚀 Deployment
 
 ### Frontend (Vercel)
+
 ```bash
 cd frontend
 npm run build
@@ -638,6 +638,7 @@ npm run build
 ```
 
 ### Backend (Railway/Heroku)
+
 ```bash
 cd backend
 # Set environment variables
